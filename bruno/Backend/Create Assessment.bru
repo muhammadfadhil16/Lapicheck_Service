@@ -1,0 +1,25 @@
+meta {
+  name: Create Assessment
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{backend_url}}/api/assessments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customer_name": "John Doe",
+    "laptop_name": "ThinkPad T480",
+    "market_price": 6000000,
+    "lcd": 85,
+    "keyboard": 90,
+    "ram": 16,
+    "battery": 80,
+    "processor_id": 1,
+    "description": "Kondisi mesin sangat baik, engsel kuat."
+  } 
+}

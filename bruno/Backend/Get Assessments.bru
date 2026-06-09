@@ -1,0 +1,11 @@
+meta {
+  name: Get Assessments
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{backend_url}}/api/assessments?page=1
+  body: none
+  auth: none
+}
