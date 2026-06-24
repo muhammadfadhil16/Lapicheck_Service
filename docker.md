@@ -300,6 +300,16 @@ npm run dev
     - "8010:80"  # Mengubah port host menjadi 8010 jika port 8000 bentrok
   ```
 
+### ❌ Request dari Klien Eksternal Gagal (CORS / Failed to Fetch)
+* **Penyebab:** Klien dijalankan dari `file://` protocol atau ada masalah dengan preflight request.
+* **Solusi:** CORS sudah dikonfigurasi permissif di kedua service (`allowed_origins => ['*']`). Untuk pengujian dari HTML statis, gunakan web server lokal:
+  ```bash
+  npx serve ./folder-html-anda
+  # atau
+  python3 -m http.server 8080
+  ```
+  Buka `http://localhost:8080` (bukan `file:///...`). Pastikan field API sesuai: `lcd`, `battery`, `keyboard`, `ram` (bukan `lcd_input`, dll).
+
 ### ❌ Perubahan Berkas `.env` Tidak Berefek
 * **Penyebab:** Laravel melakukan caching konfigurasi.
 * **Solusi:** Bersihkan cache dengan menjalankan perintah berikut:

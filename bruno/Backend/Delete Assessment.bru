@@ -1,0 +1,11 @@
+meta {
+  name: Delete Assessment
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{backend_url}}/api/assessments/2?
+  body: json
+  auth: none
+}

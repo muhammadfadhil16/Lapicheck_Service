@@ -1,0 +1,26 @@
+meta {
+  name: Create Assessment
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{backend_url}}/api/assessments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customer_name": "John Doe",
+    "laptop_name": "ASUS VivoBookPro 15 OLED",
+    "market_price": 6000000,
+    "lcd": 95,
+    "keyboard": 95,
+    "ram": 16,
+    "battery": 95,
+    "processor_id": 51,
+    "description": "ada penyok dibagian frame pojok kanan monitor dan terdapat port usb yang tidak berfungsi",
+    "use_ai": true
+  } 
+}
