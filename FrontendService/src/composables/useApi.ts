@@ -65,5 +65,6 @@ export const getImageUrl = (path: string | null | undefined): string => {
   if (!path) return ''
   if (path.startsWith('http://') || path.startsWith('https://')) return path
   const cleanPath = path.replace(/^\/+/, '')
-  return `/storage/${cleanPath}`
+  const baseUrl = BASE_URL.replace(/\/+$/, '')
+  return `${baseUrl}/storage/${cleanPath}`
 }

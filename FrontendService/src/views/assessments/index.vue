@@ -410,21 +410,21 @@
                   Harga Pasaran
                 </label>
                 <div
-                  class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_190px] shadow-sm rounded-2xl overflow-visible bg-surface-container transition-all"
+                  class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_112px] shadow-sm rounded-2xl overflow-visible bg-surface-container transition-all"
                   :class="formErrors.price ? 'border-2 border-error' : 'border border-outline-variant/50 focus-within:border-2 focus-within:border-primary'"
                 >
                   <div class="relative min-w-0">
                     <div
                       class="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none"
                     >
-                      <span class="text-primary font-label-bold text-label-bold">
+                      <span class="text-primary font-label-bold text-label-bold whitespace-nowrap">
                         {{ selectedCurrency.symbol }}
                       </span>
                     </div>
                     <input
                       id="market-price-input"
                       :value="marketPriceDisplay"
-                      class="block w-full rounded-l-2xl ps-14 pe-4 py-md bg-transparent text-on-surface font-body-md text-body-md focus:bg-surface focus:outline-none transition-all"
+                      class="block w-full min-w-0 rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none ps-14 pe-4 py-md bg-transparent text-on-surface font-mono text-[15px] sm:text-body-md tracking-tight focus:bg-surface focus:outline-none transition-all"
                       inputmode="numeric"
                       required
                       @input="handleMarketPriceInput($event); clearFieldError('price')"
@@ -437,16 +437,16 @@
                     @focusout="handleCurrencyBlur"
                   >
                     <button
-                      class="w-full h-full px-lg py-md bg-surface-container text-on-surface-variant font-label-bold text-label-bold flex items-center gap-3 justify-between"
+                      class="w-full h-full px-md py-md bg-surface-container text-on-surface-variant font-label-bold text-label-bold flex items-center gap-2 justify-between rounded-b-2xl sm:rounded-bl-none sm:rounded-r-2xl"
                       type="button"
                       @click="openDropdown = 'currency'"
                     >
                       <span class="flex items-center gap-2 min-w-0">
                         <span
-                          class="h-4 w-6 rounded-sm border border-outline-variant/40 shadow-sm"
+                          class="h-4 w-6 shrink-0 rounded-sm border border-outline-variant/40 shadow-sm"
                           :class="selectedCurrency.flagClass"
                         ></span>
-                        <span class="truncate">{{ selectedCurrencyLabel }}</span>
+                        <span class="truncate">{{ selectedCurrency.code }}</span>
                       </span>
                       <span class="material-symbols-outlined text-[20px] text-primary"
                         >expand_more</span
@@ -916,8 +916,6 @@ import { computed, reactive, ref, onMounted, nextTick } from 'vue'
 import {
   CURRENCY_OPTIONS,
   DEFAULT_CURRENCY,
-  KEYBOARD_OPTIONS,
-  LCD_OPTIONS,
   RAM_OPTIONS,
   METRIC_DEFINITIONS,
   currencyLabel,
@@ -1031,17 +1029,12 @@ const filteredProcessorOptions = computed(() => {
   )
 })
 
-const selectedCurrencyLabel = computed(() => currencyLabel(selectedCurrency.value))
-
 const filteredCurrencyOptions = computed(() => {
   const query = currencyQuery.value.toLowerCase().trim()
   if (!query) return currencyOptions
   return currencyOptions.filter((currency) => currencyLabel(currency).toLowerCase().includes(query))
 })
 
-const optionLabel = (option: ScoreOption) => `${option.value} - ${option.label}`
-
-// Guidance helpers for dynamic text
 const getLcdGuidance = (score: number | null) => {
   if (score === null) return 'Seret slider untuk menentukan kondisi LCD...'
   if (score === 100) return 'Sempurna / Seperti Baru (Tidak ada dead pixel/garis/flicker)'
