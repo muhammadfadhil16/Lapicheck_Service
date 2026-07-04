@@ -18,11 +18,12 @@ WORKDIR /var/www/html
 FROM composer:2 AS composer-stage
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader
+RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
 
 FROM base AS final
 COPY --from=composer-stage /app/vendor ./vendor
 COPY . .
 
-RUN chown -R www-data:www-data storage bootstrap/cache \
+RUN php artisan package:discover --ansi || true \
+    && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
