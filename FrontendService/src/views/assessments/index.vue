@@ -685,7 +685,7 @@
               </p>
             </div>
             <div
-              class="min-w-0 min-h-[176px] w-full bg-surface border border-outline-variant/30 px-lg py-xl flex flex-col items-center text-center rounded-[16px] shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
+              class="min-w-0 min-h-[176px] w-full bg-surface border border-outline-variant/30 px-lg py-xl flex flex-col items-center justify-center text-center rounded-[16px] shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
             >
               <span
                 class="mb-xs flex h-12 w-12 items-center justify-center rounded-full bg-surface-container/60"
@@ -715,7 +715,7 @@
                 Kategori kelayakan CPU dan Kondisi Fisik
               </p>
               <p
-                class="max-w-full text-[26px] leading-tight font-extrabold wrap-anywhere"
+                class="w-full max-w-full text-center text-[26px] leading-tight font-extrabold wrap-anywhere"
                 :style="{ color: statusTextColor(result.status) }"
               >
                 {{ result.status }}

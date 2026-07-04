@@ -118,7 +118,7 @@
                 Skor
               </th>
               <th
-                class="py-md px-lg font-label-bold text-label-bold text-primary uppercase tracking-wider text-[12px] whitespace-nowrap"
+                class="py-md px-lg font-label-bold text-label-bold text-primary uppercase tracking-wider text-[12px] whitespace-nowrap text-center"
               >
                 Status
               </th>
@@ -173,9 +173,9 @@
                   </div>
                 </div>
               </td>
-              <td class="py-lg px-lg">
+              <td class="py-lg px-lg text-center">
                 <span
-                  class="inline-flex items-center px-md py-1 rounded-full font-label-bold text-[12px] uppercase tracking-wide"
+                  class="inline-flex items-center justify-center px-md py-1 rounded-full font-label-bold text-[12px] uppercase tracking-wide"
                   :class="statusTone(item.status).badge"
                 >
                   {{ item.status }}
