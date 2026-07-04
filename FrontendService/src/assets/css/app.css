@@ -26,3 +26,50 @@
     animation: none;
   }
 }
+
+.swal2-popup {
+  max-width: calc(100vw - 32px);
+}
+
+.swal2-title {
+  line-height: 1.2;
+}
+
+.swal2-html-container {
+  overflow-wrap: anywhere;
+}
+
+.swal2-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .swal2-popup {
+    width: calc(100vw - 24px) !important;
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .swal2-title {
+    font-size: 20px !important;
+  }
+
+  .swal2-html-container,
+  .swal2-content {
+    font-size: 14px !important;
+    margin: 12px 0 0 !important;
+  }
+
+  .swal2-actions {
+    width: 100%;
+    margin-top: 20px !important;
+  }
+
+  .swal2-confirm,
+  .swal2-cancel,
+  .swal2-deny {
+    flex: 1 1 100%;
+    margin: 0 !important;
+  }
+}
