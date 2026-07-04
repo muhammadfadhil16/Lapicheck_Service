@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     git \
     && docker-php-ext-install pdo_mysql zip bcmath
 
-# Hapus semua konfigurasi mpm manual, cukup nyalakan rewrite module
 RUN a2enmod rewrite
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
@@ -28,3 +27,5 @@ COPY . .
 RUN php artisan package:discover --ansi || true \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
+
+CMD ["sh", "-c", "a2dismod mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork; apache2-foreground"]
