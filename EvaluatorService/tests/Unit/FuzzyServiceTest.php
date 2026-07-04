@@ -140,6 +140,10 @@ class FuzzyServiceTest extends TestCase
                 'cukup_layak' => [40, 60, 70, 90],
                 'layak' => [80, 100]
             ],
+            'thresholds' => [
+                'tidak_layak_batas' => 65,
+                'layak_batas' => 85,
+            ],
             'matrix_aturan' => $matrix
         ];
     }
