@@ -1,0 +1,8 @@
+vendor
+node_modules
+.git
+.env
+.gitignore
+.phpunit.result.cache
+docs
+.DS_Store
