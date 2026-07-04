@@ -30,4 +30,4 @@ RUN php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache public/storage \
     && chmod -R 775 storage bootstrap/cache
 
-CMD ["sh", "-c", "a2dismod mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork; apache2-foreground"]
+CMD ["sh", "-c", "rm -rf public/storage; php artisan storage:link || true; a2dismod mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork; apache2-foreground"]
