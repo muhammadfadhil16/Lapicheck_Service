@@ -24,7 +24,7 @@ FROM base AS final
 COPY --from=composer-stage /app/vendor ./vendor
 COPY . .
 
-RUN php artisan package:discover --ansi || true \
+RUN php artisan package:discover --ansi \
     && rm -rf public/storage \
     && php artisan storage:link \
     && chown -R www-data:www-data storage bootstrap/cache public/storage \
