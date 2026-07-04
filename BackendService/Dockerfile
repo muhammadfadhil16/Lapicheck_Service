@@ -25,7 +25,9 @@ COPY --from=composer-stage /app/vendor ./vendor
 COPY . .
 
 RUN php artisan package:discover --ansi || true \
-    && chown -R www-data:www-data storage bootstrap/cache \
+    && rm -rf public/storage \
+    && php artisan storage:link \
+    && chown -R www-data:www-data storage bootstrap/cache public/storage \
     && chmod -R 775 storage bootstrap/cache
 
 CMD ["sh", "-c", "a2dismod mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork; apache2-foreground"]
