@@ -195,5 +195,19 @@ export const evaluationService = () => {
     }
   }
 
-  return { evaluate, getAllAssessments, getAssessmentById, deleteAssessment, getProcessors }
+  const deleteProcessor = async (id: number): Promise<void> => {
+    try {
+      await api.delete(`/api/processors/${id}`)
+    } catch (error) {
+      const apiErr = error as ApiError
+      if (apiErr.status === 0) {
+        console.error('Koneksi gagal saat menghapus processor:', apiErr.message)
+      } else {
+        console.error('Gagal menghapus processor:', apiErr.message)
+      }
+      throw error
+    }
+  }
+
+  return { evaluate, getAllAssessments, getAssessmentById, deleteAssessment, getProcessors, deleteProcessor }
 }
