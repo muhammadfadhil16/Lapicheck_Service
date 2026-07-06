@@ -37,4 +37,14 @@ class ProcessorController extends Controller
             'data' => $processor,
         ], 201);
     }
+
+    public function destroy(Processor $processor)
+    {
+        $processor->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Processor deleted successfully',
+        ]);
+    }
 }

@@ -269,15 +269,26 @@
                         class="w-full rounded-xl px-md py-sm text-left font-body-md text-body-md text-on-surface hover:bg-surface-container transition-colors"
                         @mousedown.prevent="selectProcessor(proc)"
                       >
-                        <span class="flex items-start gap-sm">
-                          <span
-                            class="shrink-0 rounded-lg bg-primary/10 px-sm py-[2px] font-label-bold text-label-bold text-primary"
-                          >
-                            {{ proc.benchmark_score }}
+                        <span class="flex items-start justify-between gap-sm">
+                          <span class="flex min-w-0 items-start gap-sm">
+                            <span
+                              class="shrink-0 rounded-lg bg-primary/10 px-sm py-[2px] font-label-bold text-label-bold text-primary"
+                            >
+                              {{ proc.benchmark_score }}
+                            </span>
+                            <span class="flex min-w-0 flex-col">
+                              <span class="truncate text-on-surface font-medium">{{ proc.name }}</span>
+                              <span class="text-caption text-outline">{{ proc.category }}</span>
+                            </span>
                           </span>
-                          <span class="flex flex-col">
-                            <span class="text-on-surface font-medium">{{ proc.name }}</span>
-                            <span class="text-caption text-outline">{{ proc.category }}</span>
+                          <span
+                            role="button"
+                            tabindex="0"
+                            class="material-symbols-outlined shrink-0 rounded-lg p-xs text-[18px] text-error hover:bg-error/10"
+                            :aria-label="`Hapus ${proc.name}`"
+                            @mousedown.stop.prevent="deleteProcessorOption(proc)"
+                          >
+                            delete
                           </span>
                         </span>
                       </button>
@@ -939,7 +950,7 @@ import Swal from 'sweetalert2'
 
 defineOptions({ name: 'AssessmentIndex' })
 
-const { evaluate, getProcessors } = evaluationService()
+const { evaluate, getProcessors, deleteProcessor } = evaluationService()
 
 const form = reactive({
   customer_name: '',
@@ -1059,6 +1070,29 @@ const selectProcessor = (proc: Processor) => {
   openDropdown.value = null
   clearFieldError('processor')
   clearFieldError('processor_name')
+}
+
+const deleteProcessorOption = async (proc: Processor) => {
+  const result = await Swal.fire({
+    title: 'Hapus Processor?',
+    text: proc.name,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Hapus',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#ba1a1a',
+    background: '#faf9fd',
+    customClass: { popup: 'rounded-[24px]' },
+  })
+
+  if (!result.isConfirmed) return
+
+  await deleteProcessor(proc.id)
+  processors.value = processors.value.filter((item) => item.id !== proc.id)
+  if (form.processor_id === proc.id) {
+    form.processor_id = null
+    processorSearch.value = ''
+  }
 }
 
 const toggleManualProcessor = () => {

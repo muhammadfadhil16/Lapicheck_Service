@@ -17,26 +17,26 @@ class FuzzyService
 
         // 2. TAHAP FUZZIFIKASI
         // A. Kondisi LCD & Keyboard (Buruk, Sedang, Baik)
-        $lcdBuruk = $this->kurvaTurun($lcd, $rf['LCD']['buruk'][2], $rf['LCD']['buruk'][3]);
+        $lcdBuruk = $this->evaluateTurun($lcd, $rf['LCD']['buruk']);
         $lcdSedang = $this->evaluateSedang($lcd, $rf['LCD']['sedang']);
-        $lcdBaik = $this->kurvaNaik($lcd, $rf['LCD']['baik'][0], $rf['LCD']['baik'][1]);
+        $lcdBaik = $this->evaluateNaik($lcd, $rf['LCD']['baik']);
 
-        $keyBuruk = $this->kurvaTurun($keyboard, $rf['KondisiKeyboard']['buruk'][2], $rf['KondisiKeyboard']['buruk'][3]);
+        $keyBuruk = $this->evaluateTurun($keyboard, $rf['KondisiKeyboard']['buruk']);
         $keySedang = $this->evaluateSedang($keyboard, $rf['KondisiKeyboard']['sedang']);
-        $keyBaik = $this->kurvaNaik($keyboard, $rf['KondisiKeyboard']['baik'][0], $rf['KondisiKeyboard']['baik'][1]);
+        $keyBaik = $this->evaluateNaik($keyboard, $rf['KondisiKeyboard']['baik']);
 
         // B. RAM, Baterai, Processor (Rendah, Sedang, Tinggi)
-        $ramRendah = $this->kurvaTurun($ram, $rf['RAM']['rendah'][2], $rf['RAM']['rendah'][3]);
+        $ramRendah = $this->evaluateTurun($ram, $rf['RAM']['rendah']);
         $ramSedang = $this->evaluateSedang($ram, $rf['RAM']['sedang']);
-        $ramTinggi = $this->kurvaNaik($ram, $rf['RAM']['tinggi'][0], $rf['RAM']['tinggi'][1]);
+        $ramTinggi = $this->evaluateNaik($ram, $rf['RAM']['tinggi']);
 
-        $batRendah = $this->kurvaTurun($baterai, $rf['KesehatanBaterai']['rendah'][2], $rf['KesehatanBaterai']['rendah'][3]);
+        $batRendah = $this->evaluateTurun($baterai, $rf['KesehatanBaterai']['rendah']);
         $batSedang = $this->evaluateSedang($baterai, $rf['KesehatanBaterai']['sedang']);
-        $batTinggi = $this->kurvaNaik($baterai, $rf['KesehatanBaterai']['tinggi'][0], $rf['KesehatanBaterai']['tinggi'][1]);
+        $batTinggi = $this->evaluateNaik($baterai, $rf['KesehatanBaterai']['tinggi']);
 
-        $procRendah = $this->kurvaTurun($processor, $rf['Processor']['rendah'][2], $rf['Processor']['rendah'][3]);
+        $procRendah = $this->evaluateTurun($processor, $rf['Processor']['rendah']);
         $procSedang = $this->evaluateSedang($processor, $rf['Processor']['sedang']);
-        $procTinggi = $this->kurvaNaik($processor, $rf['Processor']['tinggi'][0], $rf['Processor']['tinggi'][1]);
+        $procTinggi = $this->evaluateNaik($processor, $rf['Processor']['tinggi']);
 
         // 3. TAHAP INFERENSI (Mamdani - MIN/MAX Dinamis)
         $rulesMatrix = $rules['matrix_aturan'] ?? [];
@@ -105,9 +105,9 @@ class FuzzyService
 
         // 1. Sampling titik (z) dari 0 hingga 100 menggunakan step float
         for ($z = 0.0; $z <= 100.0; $z = round($z + $step, 1)) {
-            $muTidakLayak = min($tidakLayak, $this->kurvaTurun($z, $rd['tidak_layak'][2], $rd['tidak_layak'][3]));
-            $muCukupLayak = min($cukupLayak, $this->kurvaTrapesium($z, $rd['cukup_layak'][0], $rd['cukup_layak'][1], $rd['cukup_layak'][2], $rd['cukup_layak'][3]));
-            $muLayak = min($layak, $this->kurvaNaik($z, $rd['layak'][0], $rd['layak'][1]));
+            $muTidakLayak = min($tidakLayak, $this->evaluateTurun($z, $rd['tidak_layak']));
+            $muCukupLayak = min($cukupLayak, $this->evaluateSedang($z, $rd['cukup_layak']));
+            $muLayak = min($layak, $this->evaluateNaik($z, $rd['layak']));
 
             // Agregasi (MAX) area kurva
             $muZ = max($muTidakLayak, $muCukupLayak, $muLayak);
@@ -194,6 +194,14 @@ class FuzzyService
         if ($x >= $b && $x <= $c) return 1.0;
         if ($x > $a && $x < $b) return ($x - $a) / ($b - $a);
         return ($d - $x) / ($d - $c);
+    }
+
+    private function evaluateTurun(float $x, array $params): float {
+        return $this->kurvaTurun($x, $params[count($params) - 2], $params[count($params) - 1]);
+    }
+
+    private function evaluateNaik(float $x, array $params): float {
+        return $this->kurvaNaik($x, $params[0], $params[1]);
     }
 
     private function evaluateSedang(float $x, array $params): float {
