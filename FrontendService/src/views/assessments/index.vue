@@ -105,6 +105,11 @@
                       <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
                       {{ getLcdGuidance(form.lcd_score) }}
                     </span>
+                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
+                      <span v-for="item in lcdRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
+                        {{ item.range }}: {{ item.label }}
+                      </span>
+                    </div>
                     <p v-if="formErrors.lcd_score" class="font-caption text-caption text-error flex items-center gap-1">
                       <span class="material-symbols-outlined text-[14px]">error</span>
                       {{ formErrors.lcd_score }}
@@ -146,6 +151,11 @@
                       <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
                       {{ getBatteryGuidance(form.battery_health) }}
                     </span>
+                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
+                      <span v-for="item in batteryRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
+                        {{ item.range }}: {{ item.label }}
+                      </span>
+                    </div>
                     <p v-if="formErrors.battery_health" class="font-caption text-caption text-error flex items-center gap-1">
                       <span class="material-symbols-outlined text-[14px]">error</span>
                       {{ formErrors.battery_health }}
@@ -401,6 +411,11 @@
                       <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
                       {{ getKeyboardGuidance(form.keyboard_score) }}
                     </span>
+                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
+                      <span v-for="item in keyboardRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
+                        {{ item.range }}: {{ item.label }}
+                      </span>
+                    </div>
                     <p v-if="formErrors.keyboard_score" class="font-caption text-caption text-error flex items-center gap-1">
                       <span class="material-symbols-outlined text-[14px]">error</span>
                       {{ formErrors.keyboard_score }}
@@ -1045,6 +1060,31 @@ const filteredCurrencyOptions = computed(() => {
   if (!query) return currencyOptions
   return currencyOptions.filter((currency) => currencyLabel(currency).toLowerCase().includes(query))
 })
+
+const lcdRanges = [
+  { range: '100', label: 'Sempurna' },
+  { range: '80-99', label: 'Normal' },
+  { range: '60-79', label: 'Minus ringan' },
+  { range: '40-59', label: 'Rusak sedang' },
+  { range: '10-39', label: 'Rusak parah' },
+  { range: '0-9', label: 'Mati total' },
+]
+
+const batteryRanges = [
+  { range: '85-100%', label: 'Sangat sehat' },
+  { range: '70-84%', label: 'Normal' },
+  { range: '50-69%', label: 'Cukup' },
+  { range: '20-49%', label: 'Drop' },
+  { range: '0-19%', label: 'Rusak' },
+]
+
+const keyboardRanges = [
+  { range: '100', label: 'Sempurna' },
+  { range: '80-99', label: 'Normal' },
+  { range: '60-79', label: 'Kurang responsif' },
+  { range: '30-59', label: 'Macet/ghosting' },
+  { range: '0-29', label: 'Rusak parah' },
+]
 
 const getLcdGuidance = (score: number | null) => {
   if (score === null) return 'Seret slider untuk menentukan kondisi LCD...'
