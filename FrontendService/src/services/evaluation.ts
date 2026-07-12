@@ -80,6 +80,25 @@ export type { ApiError }
 export const evaluationService = () => {
   const { api } = useApi()
 
+  const getAiStatus = async (): Promise<boolean> => {
+    const response = await api.get('/api/ai/status')
+    return response.data.available === true
+  }
+
+  const getAiKeywords = async (): Promise<string[]> => {
+    const response = await api.get('/api/ai/keywords')
+    return response.data.data
+  }
+
+  const addAiKeyword = async (keyword: string): Promise<string> => {
+    const response = await api.post('/api/ai/keywords', { keyword })
+    return response.data.data.keyword
+  }
+
+  const deleteAiKeyword = async (keyword: string): Promise<void> => {
+    await api.delete(`/api/ai/keywords/${encodeURIComponent(keyword)}`)
+  }
+
   const getProcessors = async (): Promise<Processor[]> => {
     try {
       const response = await api.get('/api/processors')
@@ -209,5 +228,16 @@ export const evaluationService = () => {
     }
   }
 
-  return { evaluate, getAllAssessments, getAssessmentById, deleteAssessment, getProcessors, deleteProcessor }
+  return {
+    evaluate,
+    getAiStatus,
+    getAiKeywords,
+    addAiKeyword,
+    deleteAiKeyword,
+    getAllAssessments,
+    getAssessmentById,
+    deleteAssessment,
+    getProcessors,
+    deleteProcessor,
+  }
 }

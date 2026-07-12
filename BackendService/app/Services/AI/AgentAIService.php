@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Http;
 class AgentAIService
 {
     private ?string $apiKey;
-    private TemplateConclusionService $templateService;
+    private bool $enabled;
     public bool $aiUsed = false;
 
     public function __construct()
     {
         $this->apiKey = config('services.gemini.key');
-        $this->templateService = new TemplateConclusionService();
+        $this->enabled = (bool) config('services.gemini.enabled');
     }
 
     public function getConclusion(
@@ -30,16 +30,8 @@ class AgentAIService
         bool $descriptionIgnored = false,
         bool $useAi = false
     ): string {
-        // Selalu gunakan template sebagai fallback utama
-        $templateConclusion = $this->templateService->getConclusion(
-            $laptopName, $score, $status, $description,
-            $lcdScore, $keyboardScore, $ramSize, $batteryScore,
-            $processorName, $processorBenchmark, $descriptionIgnored
-        );
-
-        // Cek toggle global + parameter request
-        if (!$useAi || empty($this->apiKey)) {
-            return $templateConclusion;
+        if (!$useAi || !$this->enabled || empty($this->apiKey)) {
+            return 'tidak ada catatan tambahan';
         }
 
         // Coba panggil Gemini AI
@@ -77,8 +69,7 @@ class AgentAIService
             \Log::error('Gemini API exception: ' . $e->getMessage(), ['laptop' => $laptopName]);
         }
 
-        // Fallback ke template jika AI gagal
-        return $templateConclusion;
+        return 'tidak ada catatan tambahan';
     }
 
     private function appendWarning(string $text, bool $descriptionIgnored): string
@@ -92,12 +83,17 @@ class AgentAIService
 
     private function sanitize(string $text): string
     {
-        $text = preg_replace('/[*_#`~\[\]()>|\\-]{2,}/', '', $text);
+        $text = strip_tags($text);
+        $text = preg_replace('/```(?:[a-z]+)?\s*([\s\S]*?)```/i', '$1', $text);
+        $text = preg_replace('/^\s{0,3}#{1,6}\s*/m', '', $text);
+        $text = preg_replace('/^\s*[-*+]\s+/m', '', $text);
+        $text = preg_replace('/^\s*\d+[.)]\s+/m', '', $text);
+        $text = preg_replace('/[*_~`]+/', '', $text);
+        $text = preg_replace('/\r\n?/', "\n", $text);
+        $text = preg_replace('/[ \t]+/', ' ', $text);
         $text = preg_replace('/\n{3,}/', "\n\n", $text);
-        $text = preg_replace('/^[#*>\-|]+\s*/m', '', $text);
-        $text = preg_replace('/\b(bagus|oke|jelek|worth it|recommended|sangat direkomendasikan|kosmetik)\b/i', '', $text);
-        $text = preg_replace('/\s{2,}/', ' ', $text);
-        $text = preg_replace('/\.\s*\./', '.', $text);
+        $text = preg_replace('/[ \t]*\n[ \t]*/', "\n", $text);
+        $text = preg_replace('/([.!?])\s*\1+/', '$1', $text);
         return trim($text);
     }
 

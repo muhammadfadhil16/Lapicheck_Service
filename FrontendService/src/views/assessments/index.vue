@@ -73,48 +73,34 @@
             >
                 <div class="flex flex-col gap-sm">
                   <div class="flex justify-between items-center">
-                    <label
-                      class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                      for="lcd-slider"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
-                      >
-                        monitor
-                      </span>
+                    <label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]">
+                      <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">monitor</span>
                       Kondisi Fisik LCD
                     </label>
                     <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
                       {{ form.lcd_score }} / 100
                     </span>
                   </div>
-                  <div class="relative flex flex-col gap-xs py-xs">
-                    <input
-                      id="lcd-slider"
-                      v-model.number="form.lcd_score"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      class="w-full h-2 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
-                      :class="formErrors.lcd_score ? 'bg-error/30 accent-error' : 'bg-surface-container-highest accent-primary'"
-                      required
-                      @input="clearFieldError('lcd_score')"
-                    />
-                    <span class="text-caption text-on-surface-variant/90 mt-xs leading-relaxed italic block transition-all duration-300">
-                      <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
-                      {{ getLcdGuidance(form.lcd_score) }}
-                    </span>
-                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
-                      <span v-for="item in lcdRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
-                        {{ item.range }}: {{ item.label }}
-                      </span>
-                    </div>
-                    <p v-if="formErrors.lcd_score" class="font-caption text-caption text-error flex items-center gap-1">
-                      <span class="material-symbols-outlined text-[14px]">error</span>
-                      {{ formErrors.lcd_score }}
-                    </p>
+                  <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
+                    <button
+                      v-for="option in lcdOptions"
+                      :key="option.value"
+                      type="button"
+                      class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
+                      :class="form.lcd_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
+                      @click="selectLcd(option)"
+                    >
+                      <span class="block font-label-bold text-label-bold">{{ option.value }} / 100</span>
+                      <span class="mt-xs block text-caption text-on-surface-variant">{{ option.label }}</span>
+                    </button>
                   </div>
+                  <p class="font-caption text-caption text-on-surface-variant">
+                    Pilih kondisi berdasarkan hasil pemeriksaan fisik agar nilai tidak ditentukan secara subjektif.
+                  </p>
+                  <p v-if="formErrors.lcd_score" class="font-caption text-caption text-error flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">error</span>
+                    {{ formErrors.lcd_score }}
+                  </p>
                 </div>
 
               <div class="flex flex-col gap-sm">
@@ -379,48 +365,34 @@
             >
                 <div class="flex flex-col gap-sm">
                   <div class="flex justify-between items-center">
-                    <label
-                      class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                      for="keyboard-slider"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
-                      >
-                        keyboard
-                      </span>
+                    <label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]">
+                      <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">keyboard</span>
                       Fungsi Keyboard
                     </label>
                     <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
                       {{ form.keyboard_score }} / 100
                     </span>
                   </div>
-                  <div class="relative flex flex-col gap-xs py-xs">
-                    <input
-                      id="keyboard-slider"
-                      v-model.number="form.keyboard_score"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      class="w-full h-2 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
-                      :class="formErrors.keyboard_score ? 'bg-error/30 accent-error' : 'bg-surface-container-highest accent-primary'"
-                      required
-                      @input="clearFieldError('keyboard_score')"
-                    />
-                    <span class="text-caption text-on-surface-variant/90 mt-xs leading-relaxed italic block transition-all duration-300">
-                      <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
-                      {{ getKeyboardGuidance(form.keyboard_score) }}
-                    </span>
-                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
-                      <span v-for="item in keyboardRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
-                        {{ item.range }}: {{ item.label }}
-                      </span>
-                    </div>
-                    <p v-if="formErrors.keyboard_score" class="font-caption text-caption text-error flex items-center gap-1">
-                      <span class="material-symbols-outlined text-[14px]">error</span>
-                      {{ formErrors.keyboard_score }}
-                    </p>
+                  <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
+                    <button
+                      v-for="option in keyboardOptions"
+                      :key="option.value"
+                      type="button"
+                      class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
+                      :class="form.keyboard_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
+                      @click="selectKeyboard(option)"
+                    >
+                      <span class="block font-label-bold text-label-bold">{{ option.value }} / 100</span>
+                      <span class="mt-xs block text-caption text-on-surface-variant">{{ option.label }}</span>
+                    </button>
                   </div>
+                  <p class="font-caption text-caption text-on-surface-variant">
+                    Pilih berdasarkan hasil tes tombol agar teknisi tidak menentukan persentase manual.
+                  </p>
+                  <p v-if="formErrors.keyboard_score" class="font-caption text-caption text-error flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">error</span>
+                    {{ formErrors.keyboard_score }}
+                  </p>
                 </div>
 
               <div class="flex flex-col gap-sm">
@@ -621,14 +593,20 @@
                 <span class="material-symbols-outlined text-[18px] text-primary">smart_toy</span>
                 <div>
                   <p class="font-label-bold text-label-bold text-on-surface text-[14px]">Analisis AI</p>
-                  <p class="font-body-xs text-on-surface-variant text-[12px]">Gunakan AI untuk analisis lebih mudah dan efektif</p>
+                  <p class="font-body-xs text-on-surface-variant text-[12px]">
+                    {{ aiAvailable ? 'Aktif otomatis untuk catatan tambahan' : 'AI tidak tersedia, penilaian fuzzy tetap berjalan' }}
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
-                @click="form.use_ai = !form.use_ai"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                role="switch"
+                :aria-checked="form.use_ai"
+                :disabled="!aiAvailable"
+                aria-label="Aktifkan analisis AI"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 :class="form.use_ai ? 'bg-primary' : 'bg-outline-variant'"
+                @click="aiAvailable && (form.use_ai = !form.use_ai)"
               >
                 <span
                   class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm"
@@ -942,6 +920,8 @@ import { computed, reactive, ref, onMounted, nextTick } from 'vue'
 import {
   CURRENCY_OPTIONS,
   DEFAULT_CURRENCY,
+  KEYBOARD_OPTIONS,
+  LCD_OPTIONS,
   RAM_OPTIONS,
   METRIC_DEFINITIONS,
   currencyLabel,
@@ -965,7 +945,12 @@ import Swal from 'sweetalert2'
 
 defineOptions({ name: 'AssessmentIndex' })
 
-const { evaluate, getProcessors, deleteProcessor } = evaluationService()
+const {
+  evaluate,
+  getAiStatus,
+  getProcessors,
+  deleteProcessor,
+} = evaluationService()
 
 const form = reactive({
   customer_name: '',
@@ -979,7 +964,7 @@ const form = reactive({
   keyboard_score: 100 as number | null,
   price: null as number | null,
   description: '',
-  use_ai: false,
+  use_ai: true,
   images: [] as File[],
 })
 
@@ -1005,6 +990,7 @@ const showManualProcessor = ref(false)
 
 const result = ref<EvaluationData | null>(null)
 const loading = ref(false)
+const aiAvailable = ref(true)
 const pdfLoading = ref(false)
 const resultSection = ref<HTMLElement | null>(null)
 // const resultCard = ref<HTMLElement | null>(null)
@@ -1023,6 +1009,8 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 const imagePreviews = ref<{ file: File; url: string }[]>([])
 const imageErrors = ref<string[]>([])
 
+const lcdOptions = LCD_OPTIONS
+const keyboardOptions = KEYBOARD_OPTIONS
 const ramOptions = RAM_OPTIONS
 const defaultCurrency = DEFAULT_CURRENCY
 const currencyOptions = CURRENCY_OPTIONS
@@ -1061,15 +1049,6 @@ const filteredCurrencyOptions = computed(() => {
   return currencyOptions.filter((currency) => currencyLabel(currency).toLowerCase().includes(query))
 })
 
-const lcdRanges = [
-  { range: '100', label: 'Sempurna' },
-  { range: '80-99', label: 'Normal' },
-  { range: '60-79', label: 'Minus ringan' },
-  { range: '40-59', label: 'Rusak sedang' },
-  { range: '10-39', label: 'Rusak parah' },
-  { range: '0-9', label: 'Mati total' },
-]
-
 const batteryRanges = [
   { range: '85-100%', label: 'Sangat sehat' },
   { range: '70-84%', label: 'Normal' },
@@ -1078,22 +1057,14 @@ const batteryRanges = [
   { range: '0-19%', label: 'Rusak' },
 ]
 
-const keyboardRanges = [
-  { range: '100', label: 'Sempurna' },
-  { range: '80-99', label: 'Normal' },
-  { range: '60-79', label: 'Kurang responsif' },
-  { range: '30-59', label: 'Macet/ghosting' },
-  { range: '0-29', label: 'Rusak parah' },
-]
+const selectLcd = (option: ScoreOption) => {
+  form.lcd_score = option.value
+  clearFieldError('lcd_score')
+}
 
-const getLcdGuidance = (score: number | null) => {
-  if (score === null) return 'Seret slider untuk menentukan kondisi LCD...'
-  if (score === 100) return 'Sempurna / Seperti Baru (Tidak ada dead pixel/garis/flicker)'
-  if (score >= 80) return 'Lecet Pemakaian Wajar / Baret Halus (Fungsi normal)'
-  if (score >= 60) return 'Shadow Tipis / White Spot Kecil (Minus kosmetik/layar berbayang tipis)'
-  if (score >= 40) return 'Retak / Bergaris Tunggal (LCD mulai buruk)'
-  if (score >= 10) return 'LCD Rusak Parah (Bercak hitam/ghost touch/flicker parah/blank putih)'
-  return 'Mati Total (Blank hitam)'
+const selectKeyboard = (option: ScoreOption) => {
+  form.keyboard_score = option.value
+  clearFieldError('keyboard_score')
 }
 
 const selectRam = (option: ScoreOption) => {
@@ -1144,15 +1115,6 @@ const toggleManualProcessor = () => {
     form.processor_name = ''
     form.processor_input = 50
   }
-}
-
-const getKeyboardGuidance = (score: number | null) => {
-  if (score === null) return 'Seret slider untuk menentukan kondisi keyboard...'
-  if (score === 100) return 'Sempurna / Seperti Baru (Semua tombol empuk & responsif)'
-  if (score >= 80) return 'Normal Pemakaian (Fungsi 100%, ada aus halus / tuts lepas membran normal)'
-  if (score >= 60) return 'Kurang Responsif (1-2 tombol keras/mendam/mati jarang pakai)'
-  if (score >= 30) return 'Tombol Vital Macet / Ghosting Ringan (Spasi/Enter macet atau mencet sendiri)'
-  return 'Mati Total / Korslet (Rusak parah/tumpahan cairan)'
 }
 
 const getBatteryGuidance = (score: number | null) => {
@@ -1612,6 +1574,14 @@ const handleExportPDF = async () => {
 }
 
 onMounted(async () => {
+  try {
+    aiAvailable.value = await getAiStatus()
+    form.use_ai = aiAvailable.value
+  } catch {
+    aiAvailable.value = false
+    form.use_ai = false
+  }
+
   try {
     processors.value = await getProcessors()
   } catch (error) {

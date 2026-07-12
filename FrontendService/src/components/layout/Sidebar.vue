@@ -51,6 +51,21 @@
           <span class="font-label-bold text-label-bold">History</span>
         </div>
       </RouterLink>
+
+      <RouterLink to="/settings/ai-keywords" v-slot="{ isActive }">
+        <div
+          :class="[
+            'flex items-center gap-md px-md py-md border-l-4 font-bold scale-100 active:scale-95 transition-all duration-200 rounded-r-full mr-md cursor-pointer',
+            isActive
+              ? 'border-primary-fixed-dim bg-on-primary-fixed-variant text-white'
+              : 'border-transparent text-primary-fixed-dim hover:bg-on-primary-fixed-variant/30',
+          ]"
+          @click="$emit('close')"
+        >
+          <span class="material-symbols-outlined icon-filled">settings</span>
+          <span class="font-label-bold text-label-bold">Pengaturan AI</span>
+        </div>
+      </RouterLink>
     </div>
     <div class="px-margin mt-auto">
       <button

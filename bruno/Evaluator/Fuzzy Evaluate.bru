@@ -13,9 +13,9 @@ post {
 body:json {
   {
     "input": {
-      "LCD": 85,
+      "LCD": 90,
       "KondisiKeyboard": 80,
-      "RAM": 8,
+      "RAM": 16,
       "KesehatanBaterai": 75,
       "Processor": 9850
     },
@@ -28,13 +28,16 @@ body:json {
         "Processor": { "rendah": [0, 5000], "sedang": [4000, 10000, 15000], "tinggi": [12000, 25000] }
       },
       "matrix_aturan": [
-        { "lcd": "baik", "keyboard": "baik", "ram": "sedang", "baterai": "sedang", "processor": "sedang", "output": "layak" },
-        { "lcd": "buruk", "keyboard": "buruk", "ram": "rendah", "baterai": "rendah", "processor": "rendah", "output": "tidak_layak" }
+        { "lcd": "baik", "keyboard": "baik", "ram": "tinggi", "baterai": "sedang", "processor": "sedang", "output": "layak" }
       ],
       "defuzzifikasi": {
         "tidak_layak": [0, 65],
         "cukup_layak": [55, 65, 85, 90],
         "layak": [85, 100]
+      },
+      "thresholds": {
+        "tidak_layak_batas": 65,
+        "layak_batas": 85
       }
     }
   }
