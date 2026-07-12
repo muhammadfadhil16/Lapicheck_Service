@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AiRelevanceKeyword;
 use App\Models\AiSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -13,9 +14,11 @@ class AiSettingController extends Controller
 {
     public function status()
     {
+        $model = $this->selectedModel();
+
         return response()->json([
-            'available' => $this->isAvailable(),
-            'model' => $this->selectedModel(),
+            'available' => $this->isHealthy($model),
+            'model' => $model,
         ]);
     }
 
@@ -59,15 +62,9 @@ class AiSettingController extends Controller
             return response()->json(['message' => 'Model tidak tersedia untuk API key ini.'], 422);
         }
 
-        $response = Http::timeout(15)->post(
-            "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . config('services.gemini.key'),
-            [
-                'contents' => [['parts' => [['text' => 'Balas dengan kata OK.']]]],
-                'generationConfig' => ['maxOutputTokens' => 5],
-            ]
-        );
+        Cache::forget($this->healthCacheKey($model));
 
-        if ($response->failed()) {
+        if (!$this->isHealthy($model)) {
             return response()->json(['message' => 'Koneksi gagal. Periksa API key, model, dan kuota Google AI Studio.'], 502);
         }
 
@@ -114,6 +111,30 @@ class AiSettingController extends Controller
     private function isAvailable(): bool
     {
         return (bool) config('services.gemini.enabled') && filled(config('services.gemini.key'));
+    }
+
+    private function isHealthy(string $model): bool
+    {
+        if (!$this->isAvailable()) {
+            return false;
+        }
+
+        return Cache::remember($this->healthCacheKey($model), now()->addMinutes(5), function () use ($model) {
+            $response = Http::timeout(10)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . config('services.gemini.key'),
+                [
+                    'contents' => [['parts' => [['text' => 'Balas dengan kata OK.']]]],
+                    'generationConfig' => ['maxOutputTokens' => 5],
+                ]
+            );
+
+            return $response->successful();
+        });
+    }
+
+    private function healthCacheKey(string $model): string
+    {
+        return 'gemini_health_' . sha1($model . '|' . (string) config('services.gemini.key'));
     }
 
     private function availableModels(): array
