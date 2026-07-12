@@ -15,7 +15,7 @@ class AiSettingController extends Controller
     {
         return response()->json([
             'available' => $this->isAvailable(),
-            'model' => $this->setting()->model,
+            'model' => $this->selectedModel(),
         ]);
     }
 
@@ -100,6 +100,15 @@ class AiSettingController extends Controller
     private function setting(): AiSetting
     {
         return AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-2.5-flash')]);
+    }
+
+    private function selectedModel(): string
+    {
+        try {
+            return $this->setting()->model;
+        } catch (\Throwable) {
+            return config('services.gemini.model', 'gemini-2.5-flash');
+        }
     }
 
     private function isAvailable(): bool

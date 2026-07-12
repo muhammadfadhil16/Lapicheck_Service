@@ -16,7 +16,11 @@ class AgentAIService
     {
         $this->apiKey = config('services.gemini.key');
         $this->enabled = (bool) config('services.gemini.enabled');
-        $this->model = AiSetting::value('model') ?: config('services.gemini.model', 'gemini-2.5-flash');
+        try {
+            $this->model = AiSetting::value('model') ?: config('services.gemini.model', 'gemini-2.5-flash');
+        } catch (\Throwable) {
+            $this->model = config('services.gemini.model', 'gemini-2.5-flash');
+        }
     }
 
     public function getConclusion(
