@@ -85,6 +85,20 @@ export const evaluationService = () => {
     return response.data.available === true
   }
 
+  const getAiModels = async (): Promise<{ models: { id: string; name: string }[]; selected: string }> => {
+    const response = await api.get('/api/ai/models')
+    return { models: response.data.data, selected: response.data.selected }
+  }
+
+  const updateAiModel = async (model: string): Promise<void> => {
+    await api.put('/api/ai/model', { model })
+  }
+
+  const testAiConnection = async (model: string): Promise<string> => {
+    const response = await api.post('/api/ai/test-connection', { model })
+    return response.data.message
+  }
+
   const getAiKeywords = async (): Promise<string[]> => {
     const response = await api.get('/api/ai/keywords')
     return response.data.data
@@ -231,6 +245,9 @@ export const evaluationService = () => {
   return {
     evaluate,
     getAiStatus,
+    getAiModels,
+    updateAiModel,
+    testAiConnection,
     getAiKeywords,
     addAiKeyword,
     deleteAiKeyword,

@@ -25,9 +25,8 @@ COPY --from=composer-stage /app/vendor ./vendor
 COPY . .
 
 RUN php artisan package:discover --ansi \
-    && rm -rf public/storage \
-    && php artisan storage:link \
-    && chown -R www-data:www-data storage bootstrap/cache public/storage \
-    && chmod -R 775 storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod +x docker-entrypoint.sh
 
-CMD ["sh", "-c", "rm -rf public/storage; php artisan storage:link || true; a2dismod mpm_event mpm_worker 2>/dev/null || true; a2enmod mpm_prefork; apache2-foreground"]
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]

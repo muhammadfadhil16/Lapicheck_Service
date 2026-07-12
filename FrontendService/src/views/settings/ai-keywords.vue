@@ -9,6 +9,19 @@
     </div>
 
     <div class="rounded-2xl border border-outline-variant/50 bg-surface p-lg shadow-sm sm:p-xl">
+      <h2 class="font-h3 text-h3 font-bold text-on-surface">Model AI</h2>
+      <p class="mt-sm text-caption text-on-surface-variant">Pilih model yang tersedia pada API key Google AI Studio. API key tetap aman di server.</p>
+      <select v-model="selectedModel" class="mt-md w-full rounded-xl border border-outline-variant/50 bg-surface-container px-md py-md text-body-md text-on-surface focus:border-primary focus:outline-none" :disabled="!models.length || savingModel || testingConnection" @change="saveModel">
+        <option v-if="!models.length" value="">Tidak ada model yang tersedia</option>
+        <option v-for="model in models" :key="model.id" :value="model.id">{{ model.name }} ({{ model.id }})</option>
+      </select>
+      <button type="button" class="mt-md rounded-xl border border-primary px-lg py-sm font-label-bold text-label-bold text-primary disabled:cursor-not-allowed disabled:opacity-50" :disabled="!selectedModel || testingConnection" @click="testConnection">
+        {{ testingConnection ? 'Menguji koneksi...' : 'Tes koneksi' }}
+      </button>
+      <p v-if="modelMessage" class="mt-sm text-caption" :class="connectionSuccessful ? 'text-primary' : 'text-error'">{{ modelMessage }}</p>
+    </div>
+
+    <div class="rounded-2xl border border-outline-variant/50 bg-surface p-lg shadow-sm sm:p-xl">
       <form class="flex flex-col gap-md sm:flex-row" @submit.prevent="addKeyword">
         <label class="sr-only" for="ai-keyword">Kosakata baru</label>
         <input
@@ -47,13 +60,48 @@
 import { onMounted, ref } from 'vue'
 import { evaluationService } from '@/services/evaluation'
 
-const { getAiKeywords, addAiKeyword, deleteAiKeyword } = evaluationService()
+const { getAiModels, updateAiModel, testAiConnection, getAiKeywords, addAiKeyword, deleteAiKeyword } = evaluationService()
+const models = ref<{ id: string; name: string }[]>([])
+const selectedModel = ref('')
+const modelMessage = ref('')
+const connectionSuccessful = ref(true)
+const savingModel = ref(false)
+const testingConnection = ref(false)
 const keywords = ref<string[]>([])
 const newKeyword = ref('')
 const loading = ref(false)
 
-const loadKeywords = async () => {
+const loadSettings = async () => {
+  const response = await getAiModels()
+  models.value = response.models
+  selectedModel.value = response.selected
   keywords.value = await getAiKeywords()
+}
+
+const saveModel = async () => {
+  if (!selectedModel.value) return
+  savingModel.value = true
+  try {
+    await updateAiModel(selectedModel.value)
+    modelMessage.value = 'Model berhasil disimpan.'
+    connectionSuccessful.value = true
+  } finally {
+    savingModel.value = false
+  }
+}
+
+const testConnection = async () => {
+  if (!selectedModel.value) return
+  testingConnection.value = true
+  try {
+    modelMessage.value = await testAiConnection(selectedModel.value)
+    connectionSuccessful.value = true
+  } catch {
+    modelMessage.value = 'Koneksi gagal. Periksa API key, model, atau kuota Google AI Studio.'
+    connectionSuccessful.value = false
+  } finally {
+    testingConnection.value = false
+  }
 }
 
 const addKeyword = async () => {
@@ -74,5 +122,5 @@ const removeKeyword = async (keyword: string) => {
   keywords.value = keywords.value.filter((item) => item !== keyword)
 }
 
-onMounted(loadKeywords)
+onMounted(loadSettings)
 </script>
