@@ -25,13 +25,9 @@ class EvaluationController extends Controller
             'input.RAM' => 'required|numeric|min:0',
             'input.KesehatanBaterai' => 'required|numeric|between:0,100',
             'input.Processor' => 'required|numeric|min:0',
-            
-            // Validasi Parametrik Fungsi Keanggotaan (Fuzzifikasi & Defuzzifikasi)
             'rules' => 'required|array',
             'rules.fuzzifikasi' => 'required|array',
             'rules.defuzzifikasi' => 'required|array',
-
-            // BARU: Validasi Strict untuk Matrix Aturan Inferensi Dinamis (R1 s.d R243)
             'rules.matrix_aturan' => 'required|array',
             'rules.matrix_aturan.*.lcd' => 'required|string|in:buruk,sedang,baik',
             'rules.matrix_aturan.*.keyboard' => 'required|string|in:buruk,sedang,baik',
@@ -39,18 +35,12 @@ class EvaluationController extends Controller
             'rules.matrix_aturan.*.baterai' => 'required|string|in:rendah,sedang,tinggi',
             'rules.matrix_aturan.*.processor' => 'required|string|in:rendah,sedang,tinggi',
             'rules.matrix_aturan.*.output' => 'required|string|in:tidak_layak,cukup_layak,layak',
-
-            // Validasi Threshold Batas Kelayakan Dinamis
-            'rules.thresholds' => 'required|array',
-            'rules.thresholds.tidak_layak_batas' => 'required|numeric|between:0,100',
-            'rules.thresholds.layak_batas' => 'required|numeric|between:0,100',
+            'rules.thresholds' => 'nullable|array',
+            'rules.thresholds.tidak_layak_batas' => 'nullable|numeric|between:0,100',
+            'rules.thresholds.layak_batas' => 'nullable|numeric|between:0,100',
         ]);
 
-        // Lempar input dan rules ke Service
-        $hasil = $this->fuzzyService->calculate(
-            $validated['input'], 
-            $validated['rules']
-        );
+        $hasil = $this->fuzzyService->calculate($validated['input'], $validated['rules']);
         
         return response()->json([
             'status' => 'success',

@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'history',
       component: () => import('../views/assessments/history.vue'),
     },
+    {
+      path: '/settings/ai-keywords',
+      name: 'ai-keywords',
+      component: () => import('../views/settings/ai-keywords.vue'),
+    },
   ],
 })
 

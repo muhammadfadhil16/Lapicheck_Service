@@ -60,28 +60,17 @@ export const DEFAULT_STATUS_COLOR = '#1a1c1e'
 export const DEFAULT_METRIC_COLOR = DEFAULT_STATUS_COLOR
 
 export const LCD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Sempurna / Seperti Baru (Tidak ada dead pixel/garis/flicker)' },
-  { value: 90, label: 'Lecet Pemakaian Wajar (Hanya baret halus/rambut)' },
-  { value: 80, label: 'Baret Cukup Dalam (Terasa jika disentuh kuku)' },
-  { value: 70, label: 'Ada White Spot / Dead Pixel Kecil (Gejala Ringan)' },
-  { value: 60, label: 'Shadow / Burn-in Ringan (Layar berbayang tipis)' },
-  { value: 50, label: 'Kaca Depan Retak / Bergaris Tunggal (Mulai Buruk)' },
-  { value: 40, label: 'Layar Bergaris Banyak Vertikal/Horizontal' },
-  { value: 30, label: 'LCD Bocor / Tompel (Bercak hitam tinta)' },
-  { value: 20, label: 'Sentuhan Error / Ghost Touch / Flicker Parah' },
-  { value: 10, label: 'LCD Rusak Parah (Blank putih / Retak hancur)' },
-  { value: 0, label: 'Mati Total (Blank hitam)' },
+  { value: 100, label: 'Normal — gambar jernih, tanpa garis, bercak, atau kedip' },
+  { value: 80, label: 'Cacat ringan — baret atau white spot kecil, tampilan tetap jelas' },
+  { value: 60, label: 'Cacat sedang — shadow, burn-in, dead pixel, atau garis ringan' },
+  { value: 0, label: 'Rusak berat — retak, bocor, flicker parah, atau layar mati' },
 ]
 
 export const KEYBOARD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Sempurna / Seperti Baru (Semua tombol empuk & responsif)' },
-  { value: 90, label: 'Normal Pemakaian (Fungsi 100%, tapi fisik ada aus halus)' },
-  { value: 80, label: 'Fungsi Normal, Fisik Minus (Ada tuts lepas tapi membran normal)' },
-  { value: 70, label: 'Kurang Responsif (1-2 tombol terasa keras/mendam)' },
-  { value: 60, label: 'Rusak Ringan (1-2 tombol jarang pakai mati, misal F1-F12)' },
-  { value: 50, label: 'Tombol Vital Macet/Mati (Spasi, Enter, atau Huruf Utama)' },
-  { value: 30, label: 'Ghosting Ringan (Terkadang menekan sendiri secara acak)' },
-  { value: 0, label: 'Mati Total / Korslet Akibat Tumpahan Cairan' },
+  { value: 100, label: 'Normal — seluruh tombol responsif dan berfungsi' },
+  { value: 80, label: 'Cacat ringan — fisik aus atau 1–2 tombol kurang nyaman' },
+  { value: 60, label: 'Cacat sedang — 1–2 tombol fungsi sekunder tidak berfungsi' },
+  { value: 0, label: 'Rusak berat — tombol utama mati, ghosting, atau korslet' },
 ]
 
 export const RAM_OPTIONS: ScoreOption[] = [

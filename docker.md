@@ -221,6 +221,47 @@ http://localhost:5173
 
 ---
 
+## 🔄 Flow Produksi Terbaru
+
+```text
+Frontend → BackendService → EvaluatorService → BackendService → Frontend
+                         └→ Gemini AI (opsional)
+```
+
+- Frontend hanya memanggil BackendService.
+- BackendService mengambil konfigurasi fuzzy dari database lalu memanggil EvaluatorService melalui `http://evaluator`.
+- EvaluatorService tetap stateless dan tidak mengakses database.
+- LCD dan keyboard dipilih melalui kondisi pemeriksaan dengan skor tetap; field API tetap `lcd` dan `keyboard`, sehingga perhitungan fuzzy tidak berubah.
+- AI aktif otomatis bila `GEMINI_AI_ENABLED=true` dan `GEMINI_API_KEY` tersedia. Jika tidak tersedia/gagal, penilaian fuzzy tetap disimpan dan catatan AI menjadi `tidak ada catatan tambahan`.
+- Kosakata AI dikelola pada menu **Pengaturan AI** (`/settings/ai-keywords`) melalui endpoint BackendService `/api/ai/keywords`.
+
+## 🚀 Checklist Production
+
+1. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` unik, dan `APP_URL` domain produksi.
+2. Set database production; jangan gunakan password root kosong. Gunakan user database khusus dengan hak minimum.
+3. Set `EVALUATOR_SERVICE_URL=http://evaluator` pada BackendService.
+4. Set `GEMINI_AI_ENABLED=true` hanya jika `GEMINI_API_KEY` valid; jangan commit file `.env`.
+5. Jalankan migrasi dan seed:
+   ```bash
+   docker compose exec backend php artisan migrate --force
+   docker compose exec backend php artisan db:seed --force
+   ```
+6. Bersihkan dan cache konfigurasi:
+   ```bash
+   docker compose exec backend php artisan optimize:clear
+   docker compose exec backend php artisan config:cache
+   ```
+7. Build frontend dengan `VITE_BASE_URL` yang mengarah ke BackendService/reverse proxy:
+   ```bash
+   cd FrontendService && npm ci && npm run build-only
+   ```
+8. Pastikan `storage` writable dan jalankan `php artisan storage:link` pada BackendService.
+9. Jangan expose port MySQL `3307` dan Evaluator `8001` ke publik; akses evaluator hanya dari network internal.
+10. Uji `GET /api/ai/status`, `GET /api/ai/keywords`, `GET /api/processors`, dan satu assessment sebelum traffic dibuka.
+11. Backup volume/database sebelum migrasi dan siapkan rollback image serta migration plan.
+
+> Catatan: `docker-compose.yml` saat ini adalah setup development karena memakai bind mount source dan port internal terbuka ke host. Untuk production gunakan compose/override production tanpa bind mount, tanpa port evaluator/database publik, dan letakkan Nginx/reverse proxy di depan BackendService.
+
 ## 🛠️ Perintah Operasional Lainnya
 
 * **Menghentikan Container:**

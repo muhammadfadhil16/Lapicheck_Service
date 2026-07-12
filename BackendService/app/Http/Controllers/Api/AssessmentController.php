@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\External\EvaluatorService;
 use App\Models\Assessment;
+use App\Models\AiRelevanceKeyword;
 use App\Models\Processor;
 use App\Models\AssessmentImage; 
 use App\Services\AI\AgentAIService;
@@ -134,35 +135,12 @@ class AssessmentController extends Controller
             $descriptionIgnored = false;
             $descriptionForAi = $request->description;
             if (!empty(trim($request->description ?? ''))) {
-                $lower = strtolower($request->description);
-                $wordCount = str_word_count($lower);
+                $lower = mb_strtolower($request->description);
+                $componentKeywords = AiRelevanceKeyword::pluck('keyword');
 
-                // Deskripsi terlalu pendek (1-2 kata) dianggap tidak informatif
-                if ($wordCount <= 2) {
+                if ($componentKeywords->isNotEmpty() && !$componentKeywords->contains(fn ($keyword) => str_contains($lower, mb_strtolower($keyword)))) {
                     $descriptionIgnored = true;
                     $descriptionForAi = null;
-                } else {
-                    // Kata kunci kondisi komponen (bukan sekadar menyebut nama barang)
-                    $componentKeywords = [
-                        'keyboard', 'baterai', 'battery', 'lcd', 'layar',
-                        'ram', 'processor', 'cpu', 'hardisk', 'ssd', 'charge',
-                        'bodi', 'casing', 'port', 'usb', 'fan', 'kipas',
-                        'touchpad', 'trackpad', 'webcam', 'speaker',
-                        'lecet', 'baret', 'penyok', 'retak', 'rusak',
-                        'mulus', 'normal', 'berfungsi', 'menyala',
-                        'upgrade', 'servis', 'service', 'perbaiki', 'ganti',
-                    ];
-                    $matchCount = 0;
-                    foreach ($componentKeywords as $keyword) {
-                        if (str_contains($lower, $keyword)) {
-                            $matchCount++;
-                        }
-                    }
-                    // Minimal harus menyebut 1 kata kunci kondisi komponen
-                    if ($matchCount === 0) {
-                        $descriptionIgnored = true;
-                        $descriptionForAi = null;
-                    }
                 }
             }
 
