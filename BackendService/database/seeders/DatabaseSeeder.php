@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             FuzzyThresholdSeeder::class,
             ProcessorSeeder::class,
             AiRelevanceKeywordSeeder::class,
+            AiSettingSeeder::class,
         ]);
 
         User::factory()->create([

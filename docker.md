@@ -234,11 +234,15 @@ Frontend → BackendService → EvaluatorService → BackendService → Frontend
 - LCD dan keyboard dipilih melalui kondisi pemeriksaan dengan skor tetap; field API tetap `lcd` dan `keyboard`, sehingga perhitungan fuzzy tidak berubah.
 - AI aktif otomatis bila `GEMINI_AI_ENABLED=true` dan `GEMINI_API_KEY` tersedia. Jika tidak tersedia/gagal, penilaian fuzzy tetap disimpan dan catatan AI menjadi `tidak ada catatan tambahan`.
 - Kosakata AI dikelola pada menu **Pengaturan AI** (`/settings/ai-keywords`) melalui endpoint BackendService `/api/ai/keywords`.
+- Model AI dipilih dari daftar model Google AI Studio yang dikembalikan `/api/ai/models`; hanya model yang mendukung `generateContent` yang ditampilkan. Pilihan tersimpan di database dan API key tidak pernah dikirim ke frontend.
+- Tombol **Tes koneksi** pada Pengaturan AI memanggil `/api/ai/test-connection` untuk menguji API key, kuota, dan model terpilih menggunakan prompt singkat.
+- `GEMINI_MODEL` menjadi fallback awal sebelum pilihan model tersimpan.
 
 ## 🚀 Checklist Production
 
 1. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` unik, dan `APP_URL` domain produksi.
-2. Set database production; jangan gunakan password root kosong. Gunakan user database khusus dengan hak minimum.
+2. Set `AUTO_MIGRATE=true` pada environment backend production. Entrypoint akan menjalankan `php artisan migrate --force` lalu `php artisan db:seed --force` sebelum Apache aktif.
+3. Set database production; jangan gunakan password root kosong. Gunakan user database khusus dengan hak minimum.
 3. Set `EVALUATOR_SERVICE_URL=http://evaluator` pada BackendService.
 4. Set `GEMINI_AI_ENABLED=true` hanya jika `GEMINI_API_KEY` valid; jangan commit file `.env`.
 5. Jalankan migrasi dan seed:

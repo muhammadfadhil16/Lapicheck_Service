@@ -2,18 +2,21 @@
 
 namespace App\Services\AI;
 
+use App\Models\AiSetting;
 use Illuminate\Support\Facades\Http;
 
 class AgentAIService
 {
     private ?string $apiKey;
     private bool $enabled;
+    private string $model;
     public bool $aiUsed = false;
 
     public function __construct()
     {
         $this->apiKey = config('services.gemini.key');
         $this->enabled = (bool) config('services.gemini.enabled');
+        $this->model = AiSetting::value('model') ?: config('services.gemini.model', 'gemini-2.5-flash');
     }
 
     public function getConclusion(
@@ -42,7 +45,7 @@ class AgentAIService
             );
 
             $response = Http::timeout(30)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $this->apiKey,
+                "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key=" . $this->apiKey,
                 ['contents' => [['parts' => [['text' => $prompt]]]]]
             );
 
