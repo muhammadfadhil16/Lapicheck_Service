@@ -1392,6 +1392,10 @@ const handleEstimation = async () => {
     }
 
     const aiFailed = form.use_ai && response.ai_used === false
+    if (aiFailed) {
+      form.use_ai = false
+      aiAvailable.value = false
+    }
     const hasWarning = response.description_ignored || aiFailed
 
     if (hasWarning) {
