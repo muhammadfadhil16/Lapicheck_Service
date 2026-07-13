@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AiRelevanceKeyword;
 use App\Models\AiSetting;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -151,14 +152,56 @@ class AiSettingController extends Controller
             return [];
         }
 
-        return collect($response->json('models', []))
+        $models = collect($response->json('models', []))
             ->filter(fn ($model) => in_array('generateContent', $model['supportedGenerationMethods'] ?? [], true))
             ->map(fn ($model) => [
-                'id' => Str::after($model['name'] ?? '', 'models/'),
+                'id'   => Str::after($model['name'] ?? '', 'models/'),
                 'name' => $model['displayName'] ?? Str::after($model['name'] ?? '', 'models/'),
             ])
             ->filter(fn ($model) => filled($model['id']))
+            ->values();
+
+        $this->warmHealthCache($models->pluck('id')->all());
+
+        return $models
+            ->filter(fn ($model) => $this->isHealthy($model['id']))
             ->values()
             ->all();
+    }
+
+    /**
+     * Pre-warm the health cache for all given model IDs using parallel HTTP requests.
+     * Only uncached models are checked, so subsequent calls within 5 minutes are instant.
+     */
+    private function warmHealthCache(array $modelIds): void
+    {
+        $uncached = array_values(array_filter(
+            $modelIds,
+            fn ($id) => !Cache::has($this->healthCacheKey($id))
+        ));
+
+        if (empty($uncached)) {
+            return;
+        }
+
+        $key = config('services.gemini.key');
+
+        $responses = Http::pool(function (Pool $pool) use ($uncached, $key) {
+            return array_map(
+                fn ($id) => $pool->as($id)->timeout(10)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$id}:generateContent?key={$key}",
+                    [
+                        'contents'         => [['parts' => [['text' => 'Balas dengan kata OK.']]]],
+                        'generationConfig' => ['maxOutputTokens' => 5],
+                    ]
+                ),
+                $uncached
+            );
+        });
+
+        foreach ($uncached as $id) {
+            $healthy = isset($responses[$id]) && $responses[$id]->successful();
+            Cache::put($this->healthCacheKey($id), $healthy, now()->addMinutes(5));
+        }
     }
 }
