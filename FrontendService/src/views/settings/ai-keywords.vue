@@ -1,24 +1,47 @@
 <template>
   <section class="mx-auto flex w-full max-w-4xl flex-col gap-xl">
     <div>
-      <p class="font-label-bold text-label-bold uppercase tracking-wider text-primary">Pengaturan sistem</p>
+      <p class="font-label-bold text-label-bold uppercase tracking-wider text-primary">
+        Pengaturan sistem
+      </p>
       <h1 class="mt-sm font-h1 text-h1 font-bold text-on-surface">Kosakata AI</h1>
       <p class="mt-sm max-w-2xl text-body-md text-on-surface-variant">
-        Tambahkan kata yang biasa digunakan untuk menjelaskan komponen atau kondisi laptop. AI akan mengenalinya saat membaca catatan assessment.
+        Tambahkan kata yang biasa digunakan untuk menjelaskan komponen atau kondisi laptop. AI akan
+        mengenalinya saat membaca catatan assessment.
       </p>
     </div>
 
     <div class="rounded-2xl border border-outline-variant/50 bg-surface p-lg shadow-sm sm:p-xl">
       <h2 class="font-h3 text-h3 font-bold text-on-surface">Model AI</h2>
-      <p class="mt-sm text-caption text-on-surface-variant">Pilih model yang tersedia pada API key Google AI Studio. API key tetap aman di server.</p>
-      <select v-model="selectedModel" class="mt-md w-full rounded-xl border border-outline-variant/50 bg-surface-container px-md py-md text-body-md text-on-surface focus:border-primary focus:outline-none" :disabled="!models.length || savingModel || testingConnection" @change="saveModel">
+      <p class="mt-sm text-caption text-on-surface-variant">
+        Pilih model yang tersedia pada API key Google AI Studio. API key tetap aman di server.
+      </p>
+      <select
+        v-model="selectedModel"
+        class="mt-md w-full rounded-xl border border-outline-variant/50 bg-surface-container px-md py-md text-body-md text-on-surface focus:border-primary focus:outline-none"
+        :disabled="!models.length || savingModel || testingConnection"
+        @change="saveModel"
+      >
         <option v-if="!models.length" value="">Tidak ada model yang tersedia</option>
-        <option v-for="model in models" :key="model.id" :value="model.id">{{ model.name }} ({{ model.id }})</option>
+        <option v-for="model in models" :key="model.id" :value="model.id">
+          {{ model.name }} ({{ model.id }})
+        </option>
       </select>
-      <button type="button" class="mt-md rounded-xl border border-primary px-lg py-sm font-label-bold text-label-bold text-primary disabled:cursor-not-allowed disabled:opacity-50" :disabled="!selectedModel || testingConnection" @click="testConnection">
+      <button
+        type="button"
+        class="mt-md rounded-xl border border-primary px-lg py-sm font-label-bold text-label-bold text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        :disabled="!selectedModel || testingConnection"
+        @click="testConnection"
+      >
         {{ testingConnection ? 'Menguji koneksi...' : 'Tes koneksi' }}
       </button>
-      <p v-if="modelMessage" class="mt-sm text-caption" :class="connectionSuccessful ? 'text-primary' : 'text-error'">{{ modelMessage }}</p>
+      <p
+        v-if="modelMessage"
+        class="mt-sm text-caption"
+        :class="connectionSuccessful ? 'text-primary' : 'text-error'"
+      >
+        {{ modelMessage }}
+      </p>
     </div>
 
     <div class="rounded-2xl border border-outline-variant/50 bg-surface p-lg shadow-sm sm:p-xl">
@@ -31,23 +54,42 @@
           placeholder="Contoh: speaker pecah, fingerprint, engsel"
           maxlength="80"
         />
-        <button type="submit" class="rounded-xl bg-primary px-lg py-md font-label-bold text-label-bold text-on-primary disabled:opacity-50" :disabled="!newKeyword.trim() || loading">
+        <button
+          type="submit"
+          class="rounded-xl bg-primary px-lg py-md font-label-bold text-label-bold text-on-primary disabled:opacity-50"
+          :disabled="!newKeyword.trim() || loading"
+        >
           {{ loading ? 'Menyimpan...' : 'Tambah kosakata' }}
         </button>
       </form>
-      <p class="mt-sm text-caption text-on-surface-variant">Gunakan kata atau frasa pendek yang mudah dikenali teknisi.</p>
+      <p class="mt-sm text-caption text-on-surface-variant">
+        Gunakan kata atau frasa pendek yang mudah dikenali teknisi.
+      </p>
     </div>
 
     <div class="rounded-2xl border border-outline-variant/50 bg-surface p-lg shadow-sm sm:p-xl">
       <div class="flex items-center justify-between gap-md">
         <h2 class="font-h3 text-h3 font-bold text-on-surface">Kosakata tersimpan</h2>
-        <span class="rounded-full bg-primary/10 px-md py-xs text-caption text-primary">{{ keywords.length }} kata</span>
+        <span class="rounded-full bg-primary/10 px-md py-xs text-caption text-primary"
+          >{{ keywords.length }} kata</span
+        >
       </div>
-      <p v-if="!keywords.length" class="mt-lg text-body-md text-on-surface-variant">Belum ada kosakata tambahan.</p>
+      <p v-if="!keywords.length" class="mt-lg text-body-md text-on-surface-variant">
+        Belum ada kosakata tambahan.
+      </p>
       <div v-else class="mt-lg flex flex-wrap gap-sm">
-        <span v-for="keyword in keywords" :key="keyword" class="inline-flex items-center gap-xs rounded-full bg-surface-container px-md py-sm text-body-md text-on-surface">
+        <span
+          v-for="keyword in keywords"
+          :key="keyword"
+          class="inline-flex items-center gap-xs rounded-full bg-surface-container px-md py-sm text-body-md text-on-surface"
+        >
           {{ keyword }}
-          <button type="button" class="text-on-surface-variant hover:text-error" :aria-label="`Hapus ${keyword}`" @click="removeKeyword(keyword)">
+          <button
+            type="button"
+            class="text-on-surface-variant hover:text-error"
+            :aria-label="`Hapus ${keyword}`"
+            @click="removeKeyword(keyword)"
+          >
             <span class="material-symbols-outlined text-[18px]">close</span>
           </button>
         </span>
@@ -60,7 +102,14 @@
 import { onMounted, ref } from 'vue'
 import { evaluationService } from '@/services/evaluation'
 
-const { getAiModels, updateAiModel, testAiConnection, getAiKeywords, addAiKeyword, deleteAiKeyword } = evaluationService()
+const {
+  getAiModels,
+  updateAiModel,
+  testAiConnection,
+  getAiKeywords,
+  addAiKeyword,
+  deleteAiKeyword,
+} = evaluationService()
 const models = ref<{ id: string; name: string }[]>([])
 const selectedModel = ref('')
 const modelMessage = ref('')
