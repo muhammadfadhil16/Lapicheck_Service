@@ -41,6 +41,9 @@ FrontendService/src/
 ├── views/assessments/    # Page components
 │   ├── index.vue         # Home — create evaluation form
 │   └── history.vue       # History — list past assessments
+├── views/laptops/
+│   ├── index.vue         # Laptop model management, filtering, edit, soft delete
+│   └── brands.vue        # Brand management, edit, archive
 ├── App.vue               # Root component
 └── main.ts               # App entry point
 ```
@@ -52,7 +55,9 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/',          name: 'home',    component: FuzzyIndex },
-    { path: '/history',   name: 'history', component: () => import('...') },
+     { path: '/history',   name: 'history', component: () => import('...') },
+     { path: '/laptops',   name: 'laptops', component: () => import('...') },
+     { path: '/laptops/brands', name: 'laptop-brands', component: () => import('...') },
   ],
 })
 ```
@@ -78,7 +83,14 @@ When `VITE_BASE_URL` is set, these become absolute URLs.
 
 | Function | Method | Path | Params |
 |----------|--------|------|--------|
-| `getProcessors()` | GET | `/api/processors` | — |
+| `getLaptopBrands()` | GET | `/api/laptop-brands` | Active brands |
+| `createLaptopBrand(name)` | POST | `/api/laptop-brands` | Brand name; restores archived duplicate |
+| `updateLaptopBrand(id, name)` | PUT | `/api/laptop-brands/{id}` | Rename brand |
+| `deleteLaptopBrand(id)` | DELETE | `/api/laptop-brands/{id}` | Archive brand |
+| `getLaptops(brandId?)` | GET | `/api/laptops?brand_id=` | Active laptop models |
+| `createLaptop(data)` | POST | `/api/laptops` | Laptop and processor data |
+| `updateLaptop(id, data)` | PUT | `/api/laptops/{id}` | Update laptop |
+| `deleteLaptop(id)` | DELETE | `/api/laptops/{id}` | Soft delete laptop |
 | `evaluate(data)` | POST | `/api/assessments` | FormData (multipart) |
 | `getAllAssessments(page, filters?)` | GET | `/api/assessments?page=&search=&start_date=&end_date=` | Query params |
 | `getAssessmentById(id)` | GET | `/api/assessments/{id}` | — |

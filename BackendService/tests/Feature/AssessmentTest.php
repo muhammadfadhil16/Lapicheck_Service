@@ -9,8 +9,8 @@ use Database\Seeders\FuzzyRuleSeeder;
 use App\Models\Assessment;
 
 use Database\Seeders\FuzzyConfigSeeder;
-use Database\Seeders\ProcessorSeeder;
-use App\Models\Processor;
+use Database\Seeders\LaptopSeeder;
+use App\Models\Laptop;
 
 class AssessmentTest extends TestCase
 {
@@ -22,7 +22,7 @@ class AssessmentTest extends TestCase
         // Seed fuzzy rules so they exist in database when formatting payload
         $this->seed(FuzzyConfigSeeder::class);
         $this->seed(FuzzyRuleSeeder::class);
-        $this->seed(ProcessorSeeder::class);
+        $this->seed(LaptopSeeder::class);
     }
 
     /**
@@ -30,7 +30,7 @@ class AssessmentTest extends TestCase
      */
     public function test_can_list_assessments(): void
     {
-        $processor = Processor::first();
+        $laptop = Laptop::first();
 
         Assessment::create([
             'customer_name' => 'John Doe',
@@ -40,7 +40,7 @@ class AssessmentTest extends TestCase
             'processor_input' => 8000,
             'keyboard_input' => 90,
             'ram_input' => 8,
-            'processor_id' => $processor->id,
+            'laptop_id' => $laptop->id,
             'final_score' => 85,
             'status' => 'Bagus',
             'market_price' => 5000000,
@@ -94,14 +94,14 @@ class AssessmentTest extends TestCase
             'services.gemini.key' => 'test-key'
         ]);
 
-        $processor = Processor::first();
+        $laptop = Laptop::first();
 
         $response = $this->postJson('/api/assessments', [
             'customer_name' => 'John Doe',
-            'laptop_name' => 'Asus ROG',
+            'laptop_name' => "{$laptop->brand->name} {$laptop->model_name}",
             'lcd' => 90,
             'battery' => 85,
-            'processor_id' => $processor->id,
+            'laptop_id' => $laptop->id,
             'keyboard' => 95,
             'ram' => 16,
             'market_price' => 10000000,
@@ -116,7 +116,7 @@ class AssessmentTest extends TestCase
                  ]);
 
         $this->assertDatabaseHas('assessments', [
-            'laptop_name' => 'Asus ROG',
+            'laptop_name' => "{$laptop->brand->name} {$laptop->model_name}",
             'final_score' => 85,
             'status' => 'Bagus',
             'ai_conclusion' => 'AI recommendation text here.'
@@ -147,7 +147,7 @@ class AssessmentTest extends TestCase
      */
     public function test_can_show_single_assessment(): void
     {
-        $processor = Processor::first();
+        $laptop = Laptop::first();
 
         $assessment = Assessment::create([
             'customer_name' => 'John Doe',
@@ -157,7 +157,7 @@ class AssessmentTest extends TestCase
             'processor_input' => 15000,
             'keyboard_input' => 95,
             'ram_input' => 16,
-            'processor_id' => $processor->id,
+            'laptop_id' => $laptop->id,
             'final_score' => 95,
             'status' => 'Bagus',
             'market_price' => 15000000,
@@ -182,7 +182,7 @@ class AssessmentTest extends TestCase
      */
     public function test_can_delete_assessment(): void
     {
-        $processor = Processor::first();
+        $laptop = Laptop::first();
 
         $assessment = Assessment::create([
             'customer_name' => 'John Doe',
@@ -192,7 +192,7 @@ class AssessmentTest extends TestCase
             'processor_input' => 9000,
             'keyboard_input' => 80,
             'ram_input' => 8,
-            'processor_id' => $processor->id,
+            'laptop_id' => $laptop->id,
             'final_score' => 80,
             'status' => 'Bagus',
             'market_price' => 12000000,

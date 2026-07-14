@@ -20,8 +20,14 @@ description: Use for backend tasks in LapiCheck. Covers Laravel (BackendService 
 
 | Method | Path | Controller | Notes |
 |--------|------|------------|-------|
-| GET | `/api/processors` | ProcessorController@index | List all processors |
-| POST | `/api/processors` | ProcessorController@store | Create processor |
+| GET | `/api/laptop-brands` | LaptopController@brands | List active brands with laptop counts |
+| POST | `/api/laptop-brands` | LaptopController@storeBrand | Create or restore a brand |
+| PUT | `/api/laptop-brands/{brand}` | LaptopController@updateBrand | Rename a brand |
+| DELETE | `/api/laptop-brands/{brand}` | LaptopController@destroyBrand | Soft delete brand without active laptops |
+| GET | `/api/laptops?brand_id=` | LaptopController@index | List active laptop models, optionally filtered by brand |
+| POST | `/api/laptops` | LaptopController@store | Create laptop with processor data |
+| PUT | `/api/laptops/{laptop}` | LaptopController@update | Update laptop data |
+| DELETE | `/api/laptops/{laptop}` | LaptopController@destroy | Soft delete laptop |
 | GET | `/api/assessments` | AssessmentController@index | List with pagination & filters |
 | POST | `/api/assessments` | AssessmentController@store | Create assessment (multipart) |
 | GET | `/api/assessments/{id}` | AssessmentController@show | Detail assessment |
@@ -32,6 +38,14 @@ description: Use for backend tasks in LapiCheck. Covers Laravel (BackendService 
 | Method | Path | Notes |
 |--------|------|-------|
 | POST | `/api/evaluator` | Called by BackendService internally |
+
+## Domain Data Rules
+
+- Processor master data is embedded in `laptops`; do not add new application flow dependencies on the old `processors` table.
+- `Laptop` and `LaptopBrand` use Eloquent `SoftDeletes`.
+- Active laptop lists exclude soft-deleted records by default.
+- Assessment relations load soft-deleted laptops for historical reports.
+- A brand cannot be archived while it still has active laptop models.
 
 ## Internal Service Communication
 

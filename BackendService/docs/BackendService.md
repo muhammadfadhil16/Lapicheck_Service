@@ -65,6 +65,30 @@ routes/
 
 ## 4. Database & Migrations
 
+### 4.0 Master Data Laptop
+
+Master data laptop dipisahkan menjadi dua tabel:
+
+- `laptop_brands`: nama brand dan `deleted_at` untuk soft delete.
+- `laptops`: `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, dan `deleted_at`.
+
+Processor bukan lagi master data terpisah. Processor dan benchmark melekat pada model laptop. Assessment memilih brand lalu model laptop; backend mengambil processor dan benchmark dari laptop terpilih. Model yang diarsipkan tidak muncul pada daftar aktif, tetapi tetap dapat dimuat dalam histori assessment.
+
+Endpoint master data:
+
+| Method | Endpoint | Fungsi |
+|--------|----------|--------|
+| GET | `/api/laptop-brands` | Daftar brand aktif dengan jumlah model |
+| POST | `/api/laptop-brands` | Tambah brand atau pulihkan brand arsip dengan nama sama |
+| PUT | `/api/laptop-brands/{brand}` | Edit nama brand |
+| DELETE | `/api/laptop-brands/{brand}` | Arsipkan brand tanpa laptop aktif |
+| GET | `/api/laptops?brand_id=` | Daftar laptop aktif, dapat difilter brand |
+| POST | `/api/laptops` | Tambah model laptop |
+| PUT | `/api/laptops/{laptop}` | Edit model dan spesifikasi |
+| DELETE | `/api/laptops/{laptop}` | Soft delete model laptop |
+
+### 4.1 Tabel `assessments`
+
 ### 4.1 Tabel `assessments`
 
 Menyimpan riwayat penilaian laptop beserta hasil perhitungan dan rekomendasi AI.
@@ -85,7 +109,7 @@ Menyimpan riwayat penilaian laptop beserta hasil perhitungan dan rekomendasi AI.
 | `estimated_price` | bigint | `floor(market_price × (final_score / 100))` |
 | `description` | text | Deskripsi kondisi fisik tambahan (opsional) |
 | `ai_conclusion` | text | Rekomendasi naratif dari Gemini AI |
-| `processor_id` | bigint (FK) | ID processor dari tabel `processors` |
+| `laptop_id` | bigint (FK) | ID model laptop dari tabel `laptops` |
 | `created_at` | timestamp | |
 | `updated_at` | timestamp | |
 

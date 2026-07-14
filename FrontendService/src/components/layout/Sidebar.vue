@@ -52,7 +52,22 @@
         </div>
       </RouterLink>
 
-      <RouterLink to="/settings/ai-keywords" v-slot="{ isActive }">
+        <div class="px-md py-sm text-label-bold font-bold text-primary-fixed-dim">
+          <span class="material-symbols-outlined align-middle text-[18px]">laptop_mac</span>
+          Data Laptop
+        </div>
+        <RouterLink to="/laptops" v-slot="{ isActive }">
+          <div :class="['ml-lg flex items-center gap-md px-md py-sm border-l-4 font-bold rounded-r-full mr-md cursor-pointer', isActive ? 'border-primary-fixed-dim bg-on-primary-fixed-variant text-white' : 'border-transparent text-primary-fixed-dim hover:bg-on-primary-fixed-variant/30']" @click="$emit('close')">
+            <span class="material-symbols-outlined text-[18px]">devices</span><span class="font-label-bold text-label-bold">Data Laptop</span>
+          </div>
+        </RouterLink>
+        <RouterLink to="/laptops/brands" v-slot="{ isActive }">
+          <div :class="['ml-lg flex items-center gap-md px-md py-sm border-l-4 font-bold rounded-r-full mr-md cursor-pointer', isActive ? 'border-primary-fixed-dim bg-on-primary-fixed-variant text-white' : 'border-transparent text-primary-fixed-dim hover:bg-on-primary-fixed-variant/30']" @click="$emit('close')">
+            <span class="material-symbols-outlined text-[18px]">sell</span><span class="font-label-bold text-label-bold">Brand</span>
+          </div>
+        </RouterLink>
+
+       <RouterLink to="/settings/ai-keywords" v-slot="{ isActive }">
         <div
           :class="[
             'flex items-center gap-md px-md py-md border-l-4 font-bold scale-100 active:scale-95 transition-all duration-200 rounded-r-full mr-md cursor-pointer',
@@ -62,7 +77,7 @@
           ]"
           @click="$emit('close')"
         >
-          <span class="material-symbols-outlined icon-filled">settings</span>
+          <span class="material-symbols-outlined icon-filled">smart_toy</span>
           <span class="font-label-bold text-label-bold">Pengaturan AI</span>
         </div>
       </RouterLink>

@@ -9,12 +9,12 @@ class Assessment extends Model
     protected $fillable = [
         'customer_name',
         'laptop_name',
+        'laptop_id',
         'lcd_input',
         'battery_input',
         'processor_input',
         'keyboard_input',
         'ram_input',
-        'processor_id',
         'final_score',
         'status',
         'market_price',
@@ -34,9 +34,9 @@ class Assessment extends Model
         'estimated_price' => 'integer',
     ];
 
-    public function processor()
+    public function laptop()
     {
-        return $this->belongsTo(Processor::class);
+        return $this->belongsTo(Laptop::class)->withTrashed();
     }
     public function images()
     {
