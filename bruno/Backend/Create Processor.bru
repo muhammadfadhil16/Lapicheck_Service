@@ -1,19 +1,17 @@
 meta {
-  name: Create Processor
+  name: Create Laptop Brand
   type: http
   seq: 1
 }
 
 post {
-  url: {{backend_url}}/api/processors
+  url: {{backend_url}}/api/laptop-brands
   body: json
   auth: none
 }
 
 body:json {
   {
-    "name": "Intel Core i7-11800H",
-    "benchmark_score": 22.082,
-    "category": "Tinggi"
+    "name": "ASUS"
   }
 }

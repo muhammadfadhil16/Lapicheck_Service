@@ -1,0 +1,20 @@
+meta {
+  name: Create Laptop
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{backend_url}}/api/laptops
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "brand_name": "ASUS",
+    "model_name": "VivoBook 15 OLED K513",
+    "processor_name": "Intel Core i5-1135G7",
+    "benchmark_score": 9850
+  }
+}

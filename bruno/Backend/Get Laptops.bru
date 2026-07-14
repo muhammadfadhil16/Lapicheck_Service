@@ -1,0 +1,15 @@
+meta {
+  name: Get Laptops
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{backend_url}}/api/laptops
+  body: none
+  auth: none
+}
+
+params:query {
+  brand_id: 2
+}

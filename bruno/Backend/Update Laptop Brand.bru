@@ -1,0 +1,17 @@
+meta {
+  name: Update Laptop Brand
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{backend_url}}/api/laptop-brands/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Acer"
+  }
+}

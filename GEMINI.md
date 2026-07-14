@@ -30,6 +30,28 @@ This file is the Gemini Code entry point for this repo. It outlines the system a
 - **Run Evaluator Tests**: `docker compose exec evaluator php artisan test`
 - **Run Frontend locally**: Navigate to `FrontendService` and run `npm run dev`
 
+## Current domain model
+
+- Laptop master data is stored in `laptop_brands` and `laptops`.
+- `laptop_brands`: stores brand names and uses soft delete.
+- `laptops`: stores `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, and uses soft delete.
+- The old `processors` table is no longer used by the application flow; processor data belongs to each laptop model.
+- `assessments` stores `laptop_id`, `laptop_name`, and `processor_input` as a historical snapshot. Assessment detail loads soft-deleted laptops with `withTrashed()` so history remains readable.
+- Assessment flow: select brand -> select laptop model -> processor and benchmark are filled from `laptops`.
+
+## Current laptop APIs
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/laptop-brands` | List active brands with laptop count |
+| POST | `/api/laptop-brands` | Create brand or restore archived brand with same name |
+| PUT | `/api/laptop-brands/{brand}` | Rename brand |
+| DELETE | `/api/laptop-brands/{brand}` | Soft delete brand if it has no active laptops |
+| GET | `/api/laptops?brand_id=` | List active laptop models, optionally filtered by brand |
+| POST | `/api/laptops` | Create laptop model with processor data |
+| PUT | `/api/laptops/{laptop}` | Update laptop model, brand, processor, and benchmark |
+| DELETE | `/api/laptops/{laptop}` | Soft delete laptop model |
+
 ## Code quality bar
 
 Every change — new code and edits to existing code — must hold to these principles. When a principle and "match existing style" conflict, prefer the principle for new/changed code, but don't do drive-by rewrites of unrelated surrounding code.
