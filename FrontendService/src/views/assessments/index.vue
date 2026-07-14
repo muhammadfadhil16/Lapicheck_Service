@@ -26,14 +26,8 @@
                 </span>
                 Nama Perangkat / Model
               </label>
-              <select v-model="selectedBrandId" class="w-full bg-surface-container border border-outline-variant/50 text-on-surface font-body-md py-md px-lg rounded-2xl" @change="loadBrandLaptops">
-                <option :value="null">Pilih merk laptop</option>
-                <option v-for="brand in laptopBrands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
-              </select>
-              <select v-model="form.laptop_id" class="w-full bg-surface-container border border-outline-variant/50 text-on-surface font-body-md py-md px-lg rounded-2xl" :disabled="!selectedBrandId" @change="selectLaptop">
-                <option :value="null">Pilih model laptop</option>
-                <option v-for="laptop in brandLaptops" :key="laptop.id" :value="laptop.id">{{ laptop.model_name }}</option>
-              </select>
+              <SearchDropdown v-model="selectedBrandId" placeholder="Pilih merk laptop" :options="brandOptions" @select="loadBrandLaptops" />
+              <SearchDropdown v-model="form.laptop_id" placeholder="Pilih model laptop" :options="laptopOptions" :disabled="!selectedBrandId" @select="selectLaptop" />
               <p class="text-caption text-on-surface-variant">Processor dan benchmark akan terisi otomatis.</p>
               <RouterLink to="/laptops" class="text-left text-caption text-primary hover:underline">Kelola data laptop di menu Data Laptop</RouterLink>
               <p v-if="formErrors.laptop_name" class="font-caption text-caption text-error flex items-center gap-1 mt-1">
@@ -469,7 +463,7 @@
 
             <div class="flex items-center justify-between bg-surface-container border border-outline-variant/50 rounded-2xl px-lg py-md shadow-sm">
               <div class="flex items-center gap-sm">
-                <span class="material-symbols-outlined text-[18px] text-primary">smart_toy</span>
+                <span class="material-symbols-outlined text-[18px] text-primary">psychology</span>
                 <div>
                   <p class="font-label-bold text-label-bold text-on-surface text-[14px]">Analisis AI</p>
                   <p class="font-body-xs text-on-surface-variant text-[12px]">
@@ -822,6 +816,7 @@ import {
 } from '@/utils/assessment'
 import { getImageUrl } from '@/composables/useApi'
 import { evaluationService, type EvaluationData, type ApiError } from '@/services/evaluation'
+import SearchDropdown from '@/components/ui/search-dropdown.vue'
 import Swal from 'sweetalert2'
 
 defineOptions({ name: 'AssessmentIndex' })
@@ -885,10 +880,12 @@ const laptopBrands = ref<LaptopBrand[]>([])
 const brandLaptops = ref<Laptop[]>([])
 const selectedBrandId = ref<number | null>(null)
 const selectedLaptop = computed(() => brandLaptops.value.find((item) => item.id === form.laptop_id))
+const brandOptions = computed(() => laptopBrands.value.map((brand) => ({ value: brand.id, label: brand.name })))
+const laptopOptions = computed(() => brandLaptops.value.map((laptop) => ({ value: laptop.id, label: laptop.model_name, description: `${laptop.processor_name} · Benchmark ${laptop.benchmark_score}` })))
 
 const loadBrandLaptops = async () => {
   form.laptop_id = null
-  brandLaptops.value = selectedBrandId.value ? await getLaptops(selectedBrandId.value) : []
+  brandLaptops.value = selectedBrandId.value ? await getLaptops(Number(selectedBrandId.value)) : []
 }
 const isDragOver = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)

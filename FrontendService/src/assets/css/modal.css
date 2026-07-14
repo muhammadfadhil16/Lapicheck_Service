@@ -1,0 +1,32 @@
+.modal {
+  @apply fixed inset-0 z-50 grid place-items-center bg-black/45 p-md;
+}
+
+.modal__panel {
+  @apply w-full max-w-2xl rounded-[20px] bg-surface shadow-[0_24px_80px_rgba(0,0,0,0.2)];
+}
+
+.modal__header,
+.modal__footer {
+  @apply flex items-center justify-between gap-sm px-lg py-md;
+}
+
+.modal__header {
+  @apply border-b border-outline-variant/20;
+}
+
+.modal__footer {
+  @apply border-t border-outline-variant/20;
+}
+
+.modal__body {
+  @apply p-lg;
+}
+
+.modal__title {
+  @apply font-h3 text-h3 text-primary;
+}
+
+.modal__close {
+  @apply text-primary;
+}

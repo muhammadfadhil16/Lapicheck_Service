@@ -1,0 +1,20 @@
+.table-shell {
+  @apply overflow-x-auto rounded-[24px] border border-outline-variant/30 bg-surface shadow-[0_8px_40px_rgba(0,0,0,0.03)];
+}
+
+.table-shell table {
+  @apply w-full text-left;
+}
+
+.table-shell thead tr {
+  @apply border-b border-outline-variant/30 bg-surface-container/50;
+}
+
+.table-shell th,
+.table-shell td {
+  @apply px-lg py-md;
+}
+
+.table-shell th {
+  @apply text-[12px] uppercase tracking-wider text-primary;
+}

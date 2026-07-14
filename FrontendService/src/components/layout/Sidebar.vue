@@ -77,7 +77,7 @@
           ]"
           @click="$emit('close')"
         >
-          <span class="material-symbols-outlined icon-filled">settings</span>
+          <span class="material-symbols-outlined icon-filled">smart_toy</span>
           <span class="font-label-bold text-label-bold">Pengaturan AI</span>
         </div>
       </RouterLink>

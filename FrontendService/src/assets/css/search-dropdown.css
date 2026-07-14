@@ -1,0 +1,52 @@
+.search-dropdown {
+  @apply relative w-full;
+}
+
+.search-dropdown__label {
+  @apply mb-xs block font-label-bold text-label-bold text-primary;
+}
+
+.search-dropdown__input {
+  @apply w-full rounded-2xl border border-outline-variant/50 bg-surface-container py-md pl-lg pr-12 font-body-md text-body-md text-on-surface shadow-sm transition-all;
+}
+
+.search-dropdown__input:focus {
+  @apply border-primary bg-surface outline-none;
+}
+
+.search-dropdown__input:disabled {
+  @apply cursor-not-allowed opacity-65;
+}
+
+.search-dropdown__icon {
+  @apply pointer-events-none absolute right-md top-1/2 -translate-y-1/2 text-[22px] text-primary;
+}
+
+.search-dropdown__menu {
+  @apply absolute z-30 mt-xs max-h-72 w-full overflow-y-auto rounded-2xl border border-outline-variant/40 bg-surface p-xs shadow-[0_14px_40px_rgba(0,0,0,0.12)];
+}
+
+.search-dropdown__option {
+  @apply w-full rounded-xl px-md py-sm text-left font-body-md text-body-md text-on-surface transition-colors;
+}
+
+.search-dropdown__option:hover,
+.search-dropdown__option--active {
+  @apply bg-surface-container;
+}
+
+.search-dropdown__option--selected {
+  @apply bg-primary/10 text-primary;
+}
+
+.search-dropdown__option-label {
+  @apply block font-label-bold text-label-bold;
+}
+
+.search-dropdown__option-description {
+  @apply mt-xs block font-caption text-caption text-on-surface-variant;
+}
+
+.search-dropdown__empty {
+  @apply px-md py-sm font-caption text-caption text-on-surface-variant;
+}

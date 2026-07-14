@@ -1,6 +1,10 @@
 @import 'vue3-perfect-scrollbar/style.css';
 @import './tailwind.css';
 @import './lyp.css';
+@import './field-input.css';
+@import './search-dropdown.css';
+@import './tables.css';
+@import './modal.css';
 
 @keyframes status-pulse {
   0% {
