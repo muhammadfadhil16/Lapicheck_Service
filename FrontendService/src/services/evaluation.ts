@@ -1,5 +1,5 @@
 import { useApi, type ApiError } from '@/composables/useApi'
-import type { Processor } from '@/constants/assessment'
+import type { Laptop, LaptopBrand } from '@/constants/assessment'
 
 export interface EvaluationInput {
   customer_name: string
@@ -9,6 +9,7 @@ export interface EvaluationInput {
   keyboard_score: number
   ram_capacity: number
   battery_health: number
+  laptop_id?: number
   processor_id?: number
   processor_name?: string
   processor_input?: number
@@ -48,6 +49,7 @@ export interface EvaluationData {
   description?: string
   created_at: string
   processor?: ProcessorRelation
+  laptop?: Laptop
   description_ignored?: boolean
   ai_warning?: string | null
   ai_used?: boolean
@@ -113,19 +115,42 @@ export const evaluationService = () => {
     await api.delete(`/api/ai/keywords/${encodeURIComponent(keyword)}`)
   }
 
-  const getProcessors = async (): Promise<Processor[]> => {
-    try {
-      const response = await api.get('/api/processors')
-      return response.data.data || response.data
-    } catch (error) {
-      const apiErr = error as ApiError
-      if (apiErr.status === 0) {
-        console.error('Koneksi gagal saat memuat processor:', apiErr.message)
-      } else {
-        console.error('Gagal memuat processor:', apiErr.message)
-      }
-      throw error
-    }
+  const getLaptopBrands = async (): Promise<LaptopBrand[]> => {
+    const response = await api.get('/api/laptop-brands')
+    return response.data.data || response.data
+  }
+
+  const createLaptopBrand = async (name: string): Promise<LaptopBrand> => {
+    const response = await api.post('/api/laptop-brands', { name })
+    return response.data.data
+  }
+
+  const updateLaptopBrand = async (id: number, name: string): Promise<LaptopBrand> => {
+    const response = await api.put(`/api/laptop-brands/${id}`, { name })
+    return response.data.data
+  }
+
+  const deleteLaptopBrand = async (id: number): Promise<void> => {
+    await api.delete(`/api/laptop-brands/${id}`)
+  }
+
+  const getLaptops = async (brandId?: number): Promise<Laptop[]> => {
+    const response = await api.get('/api/laptops', { params: brandId ? { brand_id: brandId } : undefined })
+    return response.data.data || response.data
+  }
+
+  const createLaptop = async (data: { brand_name: string; model_name: string; processor_name: string; benchmark_score: number }): Promise<Laptop> => {
+    const response = await api.post('/api/laptops', data)
+    return response.data.data
+  }
+
+  const updateLaptop = async (id: number, data: { brand_id: number; model_name: string; processor_name: string; benchmark_score: number }): Promise<Laptop> => {
+    const response = await api.put(`/api/laptops/${id}`, data)
+    return response.data.data
+  }
+
+  const deleteLaptop = async (id: number): Promise<void> => {
+    await api.delete(`/api/laptops/${id}`)
   }
 
   const evaluate = async (data: EvaluationInput): Promise<EvaluationData> => {
@@ -138,7 +163,9 @@ export const evaluationService = () => {
       formData.append('keyboard', String(data.keyboard_score))
       formData.append('ram', String(data.ram_capacity))
       formData.append('battery', String(data.battery_health))
-      if (data.processor_id) {
+      if (data.laptop_id) {
+        formData.append('laptop_id', String(data.laptop_id))
+      } else if (data.processor_id) {
         formData.append('processor_id', String(data.processor_id))
       } else if (data.processor_name) {
         formData.append('processor_name', data.processor_name)
@@ -228,20 +255,6 @@ export const evaluationService = () => {
     }
   }
 
-  const deleteProcessor = async (id: number): Promise<void> => {
-    try {
-      await api.delete(`/api/processors/${id}`)
-    } catch (error) {
-      const apiErr = error as ApiError
-      if (apiErr.status === 0) {
-        console.error('Koneksi gagal saat menghapus processor:', apiErr.message)
-      } else {
-        console.error('Gagal menghapus processor:', apiErr.message)
-      }
-      throw error
-    }
-  }
-
   return {
     evaluate,
     getAiStatus,
@@ -254,7 +267,13 @@ export const evaluationService = () => {
     getAllAssessments,
     getAssessmentById,
     deleteAssessment,
-    getProcessors,
-    deleteProcessor,
+    getLaptopBrands,
+    createLaptopBrand,
+    updateLaptopBrand,
+    deleteLaptopBrand,
+    getLaptops,
+    createLaptop,
+    updateLaptop,
+    deleteLaptop,
   }
 }

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\External\EvaluatorService;
 use App\Models\Assessment;
 use App\Models\AiRelevanceKeyword;
-use App\Models\Processor;
+use App\Models\Laptop;
 use App\Models\AssessmentImage; 
 use App\Services\AI\AgentAIService;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +22,7 @@ class AssessmentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Assessment::with(['processor', 'images']);
+        $query = Assessment::with(['laptop.brand', 'images']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -59,14 +59,13 @@ class AssessmentController extends Controller
     {
         $request->validate([
             'customer_name'  => 'required|string|max:255',
+            'laptop_id'      => 'required|exists:laptops,id',
             'laptop_name'    => 'required|string',
             'images'         => 'nullable|array|max:3',
             'images.*'       => 'image|mimes:jpeg,png,jpg|max:2048',
             'lcd'            => 'required|integer|between:0,100',
             'battery'        => 'required|integer|between:0,100',
-            'processor_id'   => 'nullable|exists:processors,id',
-            'processor_name' => 'required_without:processor_id|string|max:255',
-            'processor_input'=> 'required_without:processor_id|numeric|min:0',
+
             'keyboard'       => 'required|integer|between:0,100',
             'ram'            => 'required|numeric|min:0',
             'market_price'   => 'required|integer|min:0',
@@ -98,27 +97,12 @@ class AssessmentController extends Controller
         ]);
 
         try {
-            // 1. Tentukan Processor (dari ID atau buat baru)
-            if ($request->processor_id) {
-                $processor = Processor::findOrFail($request->processor_id);
-            } else {
-                $score = (int) $request->processor_input;
-                $category = match(true) {
-                    $score <= 7999    => 'Rendah',
-                    $score <= 18000   => 'Sedang',
-                    default           => 'Tinggi',
-                };
-                $processor = Processor::create([
-                    'name'            => $request->processor_name,
-                    'benchmark_score' => $score,
-                    'category'        => $category,
-                ]);
-            }
+            $laptop = Laptop::with('brand')->findOrFail($request->laptop_id);
 
             $input = [
                 'LCD'              => $request->lcd,
                 'KesehatanBaterai' => $request->battery,
-                'Processor'        => $processor->benchmark_score,
+                'Processor'        => $laptop->benchmark_score,
                 'KondisiKeyboard'  => $request->keyboard,
                 'RAM'              => $request->ram,
             ];
@@ -149,7 +133,7 @@ class AssessmentController extends Controller
             $aiUsed = false;
             try {
                 $aiConclusion = $this->aiService->getConclusion(
-                    $request->laptop_name,
+                    $laptop ? "{$laptop->brand->name} {$laptop->model_name}" : $request->laptop_name,
                     $score,
                     $status,
                     $descriptionForAi,
@@ -157,8 +141,8 @@ class AssessmentController extends Controller
                     $request->keyboard,
                     $request->ram,
                     $request->battery,
-                    $processor->name,
-                    $processor->benchmark_score,
+                    $laptop->processor_name,
+                    $laptop->benchmark_score,
                     $descriptionIgnored,
                     $useAi
                 );
@@ -174,14 +158,14 @@ class AssessmentController extends Controller
             // 5. Simpan Data Evaluasi Utama Terlebih Dahulu
             $assessment = Assessment::create([
                 'customer_name'   => $request->customer_name,
-                'laptop_name'     => $request->laptop_name,
+                'laptop_name'     => $laptop ? "{$laptop->brand->name} {$laptop->model_name}" : $request->laptop_name,
+                'laptop_id'       => $laptop?->id,
                 'lcd_input'       => $request->lcd,
                 'battery_input'   => $request->battery,
-                'processor_input' => $processor->benchmark_score,
+                'processor_input' => $laptop->benchmark_score,
                 'keyboard_input'  => $request->keyboard,
                 'ram_input'       => $request->ram,
-                'processor_id'    => $processor->id,
-                'final_score'     => $score,
+                                'final_score'     => $score,
                 'status'          => $status,
                 'market_price'    => $request->market_price,
                 'estimated_price' => $estimatedPrice,
@@ -202,7 +186,7 @@ class AssessmentController extends Controller
                 }
             }
 
-            $data = $assessment->load(['processor', 'images'])->toArray();
+            $data = $assessment->load(['laptop.brand', 'images'])->toArray();
             $data['description_ignored'] = $descriptionIgnored;
 
             // Parse warning marker dari ai_conclusion
@@ -232,7 +216,7 @@ class AssessmentController extends Controller
     public function show($id)
     {
         // Sertakan juga relasi 'images' di fungsi detail (show)
-        $assessment = Assessment::with(['processor', 'images'])->findOrFail($id);
+        $assessment = Assessment::with(['laptop.brand', 'images'])->findOrFail($id);
         
         return response()->json([
             'status' => 'success',

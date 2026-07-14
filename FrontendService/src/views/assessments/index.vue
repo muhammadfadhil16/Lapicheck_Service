@@ -26,16 +26,16 @@
                 </span>
                 Nama Perangkat / Model
               </label>
-              <input
-                id="laptop-name"
-                v-model="form.laptop_name"
-                class="w-full bg-surface-container border text-on-surface font-body-md text-body-md py-md px-lg rounded-2xl focus:border-2 focus:bg-surface focus:outline-none transition-all shadow-sm"
-                :class="formErrors.laptop_name ? 'border-error focus:border-error' : 'border-outline-variant/50 focus:border-primary'"
-                placeholder="Contoh: MacBook Pro 2021, ThinkPad X1..."
-                type="text"
-                required
-                @input="clearFieldError('laptop_name')"
-              />
+              <select v-model="selectedBrandId" class="w-full bg-surface-container border border-outline-variant/50 text-on-surface font-body-md py-md px-lg rounded-2xl" @change="loadBrandLaptops">
+                <option :value="null">Pilih merk laptop</option>
+                <option v-for="brand in laptopBrands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+              </select>
+              <select v-model="form.laptop_id" class="w-full bg-surface-container border border-outline-variant/50 text-on-surface font-body-md py-md px-lg rounded-2xl" :disabled="!selectedBrandId" @change="selectLaptop">
+                <option :value="null">Pilih model laptop</option>
+                <option v-for="laptop in brandLaptops" :key="laptop.id" :value="laptop.id">{{ laptop.model_name }}</option>
+              </select>
+              <p class="text-caption text-on-surface-variant">Processor dan benchmark akan terisi otomatis.</p>
+              <RouterLink to="/laptops" class="text-left text-caption text-primary hover:underline">Kelola data laptop di menu Data Laptop</RouterLink>
               <p v-if="formErrors.laptop_name" class="font-caption text-caption text-error flex items-center gap-1 mt-1">
                 <span class="material-symbols-outlined text-[14px]">error</span>
                 {{ formErrors.laptop_name }}
@@ -228,135 +228,14 @@
                   >
                     speed
                   </span>
-                  CPU / Processor
-                </label>
+                   CPU / Processor
+                 </label>
 
-                <template v-if="!showManualProcessor">
-                  <div class="relative">
-                    <input
-                      id="processor-select"
-                      v-model="processorSearch"
-                      class="w-full bg-surface-container border text-on-surface font-body-md text-body-md py-md pl-lg pr-12 rounded-2xl focus:border-2 focus:bg-surface focus:outline-none transition-all shadow-sm"
-                      :class="formErrors.processor ? 'border-error focus:border-error' : 'border-outline-variant/50 focus:border-primary'"
-                      :placeholder="
-                        processors.length
-                          ? 'Cari atau pilih processor...'
-                          : 'Memuat data processor...'
-                      "
-                      autocomplete="off"
-                      required
-                      @focus="openDropdown = 'processor'"
-                      @input="form.processor_id = null; clearFieldError('processor')"
-                      @blur="closeDropdown"
-                    />
-                    <span
-                      class="material-symbols-outlined pointer-events-none absolute right-md top-1/2 -translate-y-1/2 text-[22px] text-primary"
-                    >
-                      expand_more
-                    </span>
-                    <div
-                      v-if="openDropdown === 'processor'"
-                      class="absolute z-30 mt-xs max-h-72 w-full overflow-y-auto rounded-2xl border border-outline-variant/40 bg-surface shadow-[0_14px_40px_rgba(0,0,0,0.12)] p-xs"
-                    >
-                      <button
-                        v-for="proc in filteredProcessorOptions"
-                        :key="proc.id"
-                        type="button"
-                        class="w-full rounded-xl px-md py-sm text-left font-body-md text-body-md text-on-surface hover:bg-surface-container transition-colors"
-                        @mousedown.prevent="selectProcessor(proc)"
-                      >
-                        <span class="flex items-start justify-between gap-sm">
-                          <span class="flex min-w-0 items-start gap-sm">
-                            <span
-                              class="shrink-0 rounded-lg bg-primary/10 px-sm py-[2px] font-label-bold text-label-bold text-primary"
-                            >
-                              {{ proc.benchmark_score }}
-                            </span>
-                            <span class="flex min-w-0 flex-col">
-                              <span class="truncate text-on-surface font-medium">{{ proc.name }}</span>
-                              <span class="text-caption text-outline">{{ proc.category }}</span>
-                            </span>
-                          </span>
-                          <span
-                            role="button"
-                            tabindex="0"
-                            class="material-symbols-outlined shrink-0 rounded-lg p-xs text-[18px] text-error hover:bg-error/10"
-                            :aria-label="`Hapus ${proc.name}`"
-                            @mousedown.stop.prevent="deleteProcessorOption(proc)"
-                          >
-                            delete
-                          </span>
-                        </span>
-                      </button>
-                      <div class="px-md py-sm">
-                        <p
-                          v-if="filteredProcessorOptions.length === 0"
-                          class="font-caption text-caption text-on-surface-variant mb-xs"
-                        >
-                          Processor tidak ditemukan dalam database.
-                        </p>
-                        <button
-                          type="button"
-                          class="text-label-bold text-label-bold text-primary hover:underline"
-                          @mousedown.prevent="toggleManualProcessor"
-                        >
-                          + Input processor manual
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    class="text-left text-caption text-primary hover:underline mt-1"
-                    @click="toggleManualProcessor"
-                  >
-                    Processor tidak tersedia? Input manual
-                  </button>
-                </template>
-
-                <template v-else>
-                  <div class="flex flex-col gap-md p-md bg-surface-container/50 rounded-2xl border border-outline-variant/30">
-                    <p class="font-label-bold text-label-bold text-on-surface-variant text-[12px]">
-                      NAMA PROCESSOR
-                    </p>
-                    <input
-                      v-model="form.processor_name"
-                      class="w-full bg-surface border text-on-surface font-body-md text-body-md py-md px-lg rounded-2xl focus:border-2 focus:bg-surface focus:outline-none transition-all shadow-sm"
-                      :class="formErrors.processor_name ? 'border-error focus:border-error' : 'border-outline-variant/50 focus:border-primary'"
-                      placeholder="Contoh: Apple M3, AMD Ryzen 9..."
-                      type="text"
-                      required
-                      @input="clearFieldError('processor_name')"
-                    />
-                    <div class="flex flex-col gap-xs">
-                      <label class="font-label-bold text-label-bold text-on-surface-variant text-[12px]">
-                        Benchmark <span class="font-normal text-outline">(contoh: 5000–40000)</span>
-                      </label>
-                      <input
-                        v-model.number="form.processor_input"
-                        class="w-full bg-surface border border-outline-variant/50 text-on-surface font-body-md text-body-md py-md px-lg rounded-2xl focus:border-2 focus:border-primary focus:bg-surface focus:outline-none transition-all shadow-sm"
-                        type="number"
-                        min="0"
-                        placeholder="Contoh: 6500"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      class="text-left text-caption text-primary hover:underline"
-                      @click="toggleManualProcessor"
-                    >
-                      &larr; Kembali ke daftar processor
-                    </button>
-                  </div>
-                  <p v-if="formErrors.processor_name" class="font-caption text-caption text-error flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[14px]">error</span>
-                    {{ formErrors.processor_name }}
-                  </p>
-                </template>
-                <p v-if="formErrors.processor" class="font-caption text-caption text-error flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[14px]">error</span>
-                  {{ formErrors.processor }}
-                </p>
+                  <div v-if="selectedLaptop" class="rounded-2xl border border-outline-variant/30 bg-surface-container p-md">
+                   <p class="font-medium text-on-surface">{{ selectedLaptop.processor_name }}</p>
+                   <p class="text-caption text-on-surface-variant">Benchmark {{ selectedLaptop.benchmark_score }} · {{ selectedLaptop.category }}</p>
+                 </div>
+                  <p v-else class="text-caption text-on-surface-variant">Pilih merk dan model laptop terlebih dahulu.</p>
               </div>
             </div>
 
@@ -928,7 +807,9 @@ import {
   type CurrencyOption,
   type MetricDefinition,
   type ScoreOption,
-  type Processor,
+
+  type Laptop,
+  type LaptopBrand,
 } from '@/constants/assessment'
 import {
   formatCurrency,
@@ -948,13 +829,14 @@ defineOptions({ name: 'AssessmentIndex' })
 const {
   evaluate,
   getAiStatus,
-  getProcessors,
-  deleteProcessor,
+  getLaptopBrands,
+  getLaptops,
 } = evaluationService()
 
 const form = reactive({
   customer_name: '',
   laptop_name: '',
+  laptop_id: null as number | null,
   lcd_score: 100 as number | null,
   battery_health: 80 as number | null,
   ram_capacity: null as number | null,
@@ -986,8 +868,6 @@ const clearFieldError = (field: string) => {
   formErrors[field] = ''
 }
 
-const showManualProcessor = ref(false)
-
 const result = ref<EvaluationData | null>(null)
 const loading = ref(false)
 const aiAvailable = ref(true)
@@ -998,11 +878,18 @@ const marketPriceDisplay = ref('')
 const selectedCurrencyCode = ref('IDR')
 
 const ramSearch = ref('')
-const processorSearch = ref('')
 const currencyQuery = ref('')
 const openDropdown = ref<'ram' | 'processor' | 'currency' | null>(null)
 
-const processors = ref<Processor[]>([])
+const laptopBrands = ref<LaptopBrand[]>([])
+const brandLaptops = ref<Laptop[]>([])
+const selectedBrandId = ref<number | null>(null)
+const selectedLaptop = computed(() => brandLaptops.value.find((item) => item.id === form.laptop_id))
+
+const loadBrandLaptops = async () => {
+  form.laptop_id = null
+  brandLaptops.value = selectedBrandId.value ? await getLaptops(selectedBrandId.value) : []
+}
 const isDragOver = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
@@ -1031,17 +918,6 @@ const filterScoreOptions = (options: ScoreOption[], query: string) => {
 }
 
 const filteredRamOptions = computed(() => filterScoreOptions(ramOptions, ramSearch.value))
-
-const filteredProcessorOptions = computed(() => {
-  const query = processorSearch.value.toLowerCase().trim()
-  if (!query) return processors.value
-  return processors.value.filter(
-    (proc) =>
-      proc.name.toLowerCase().includes(query) ||
-      String(proc.benchmark_score).includes(query) ||
-      proc.category.toLowerCase().includes(query),
-  )
-})
 
 const filteredCurrencyOptions = computed(() => {
   const query = currencyQuery.value.toLowerCase().trim()
@@ -1074,47 +950,10 @@ const selectRam = (option: ScoreOption) => {
   clearFieldError('ram_capacity')
 }
 
-const selectProcessor = (proc: Processor) => {
-  form.processor_id = proc.id
-  form.processor_name = ''
-  processorSearch.value = `${proc.name} (${proc.benchmark_score})`
-  openDropdown.value = null
-  clearFieldError('processor')
-  clearFieldError('processor_name')
-}
-
-const deleteProcessorOption = async (proc: Processor) => {
-  const result = await Swal.fire({
-    title: 'Hapus Processor?',
-    text: proc.name,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Hapus',
-    cancelButtonText: 'Batal',
-    confirmButtonColor: '#ba1a1a',
-    background: '#faf9fd',
-    customClass: { popup: 'rounded-[24px]' },
-  })
-
-  if (!result.isConfirmed) return
-
-  await deleteProcessor(proc.id)
-  processors.value = processors.value.filter((item) => item.id !== proc.id)
-  if (form.processor_id === proc.id) {
-    form.processor_id = null
-    processorSearch.value = ''
-  }
-}
-
-const toggleManualProcessor = () => {
-  showManualProcessor.value = !showManualProcessor.value
-  if (showManualProcessor.value) {
-    form.processor_id = null
-    processorSearch.value = ''
-    openDropdown.value = null
-    form.processor_name = ''
-    form.processor_input = 50
-  }
+const selectLaptop = () => {
+  if (!selectedLaptop.value) return
+  form.laptop_name = `${selectedLaptop.value.brand.name} ${selectedLaptop.value.model_name}`
+  clearFieldError('laptop_name')
 }
 
 const getBatteryGuidance = (score: number | null) => {
@@ -1300,8 +1139,8 @@ const validateForm = (): boolean => {
   clearAllErrors()
   let isValid = true
 
-  if (!form.laptop_name.trim()) {
-    formErrors.laptop_name = 'Nama perangkat/model laptop wajib diisi.'
+  if (form.laptop_id === null && !form.laptop_name.trim()) {
+    formErrors.laptop_name = 'Pilih model laptop atau ketik nama perangkat.'
     isValid = false
   }
 
@@ -1323,22 +1162,6 @@ const validateForm = (): boolean => {
   if (form.ram_capacity === null) {
     formErrors.ram_capacity = 'Kapasitas RAM wajib dipilih.'
     isValid = false
-  }
-
-  if (showManualProcessor.value) {
-    if (!form.processor_name.trim()) {
-      formErrors.processor_name = 'Nama processor wajib diisi pada input manual.'
-      isValid = false
-    }
-    if (!form.processor_input || form.processor_input <= 0) {
-      formErrors.processor_name = 'Benchmark processor harus lebih dari 0.'
-      isValid = false
-    }
-  } else {
-    if (form.processor_id === null) {
-      formErrors.processor = 'Pilih processor dari daftar, atau gunakan input manual.'
-      isValid = false
-    }
   }
 
   if (form.keyboard_score === null) {
@@ -1375,10 +1198,7 @@ const handleEstimation = async () => {
       keyboard_score: form.keyboard_score!,
       ram_capacity: form.ram_capacity!,
       battery_health: form.battery_health!,
-      ...(showManualProcessor.value
-        ? { processor_name: form.processor_name.trim(), processor_input: form.processor_input }
-        : { processor_id: form.processor_id! }
-      ),
+      laptop_id: form.laptop_id!,
       images: form.images.length > 0 ? form.images : undefined,
       description: form.description || undefined,
       use_ai: form.use_ai,
@@ -1587,31 +1407,17 @@ onMounted(async () => {
   }
 
   try {
-    processors.value = await getProcessors()
+    laptopBrands.value = await getLaptopBrands()
   } catch (error) {
     const apiError = error as ApiError
-    console.error('Gagal memuat data processor:', apiError.message)
-    if (apiError.status === 0) {
-      Swal.fire({
-        title: 'Koneksi Gagal',
-        text: 'Tidak dapat memuat data processor. Pastikan backend berjalan.',
-        icon: 'error',
-        background: '#faf9fd',
-        customClass: { popup: 'rounded-[24px]' },
-        timer: 4000,
-        showConfirmButton: false,
-      })
-    } else {
-      Swal.fire({
-        title: 'Gagal Memuat',
-        text: 'Data processor tidak dapat dimuat. Anda masih bisa menggunakan input manual.',
-        icon: 'warning',
-        background: '#faf9fd',
-        customClass: { popup: 'rounded-[24px]' },
-        timer: 5000,
-        showConfirmButton: false,
-      })
-    }
+    console.error('Gagal memuat data perangkat:', apiError.message)
+    await Swal.fire({
+      title: 'Gagal Memuat',
+      text: 'Data perangkat tidak dapat dimuat. Pastikan backend berjalan.',
+      icon: 'error',
+      background: '#faf9fd',
+      customClass: { popup: 'rounded-[24px]' },
+    })
   }
 })
 </script>

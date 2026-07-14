@@ -19,6 +19,17 @@ export type Processor = {
   category: string
 }
 
+export type LaptopBrand = { id: number; name: string; laptops_count?: number }
+
+export type Laptop = {
+  id: number
+  model_name: string
+  processor_name: string
+  benchmark_score: number
+  category: string
+  brand: LaptopBrand
+}
+
 export type MetricKey = 'LCD' | 'KesehatanBaterai' | 'Processor' | 'KondisiKeyboard' | 'RAM'
 
 export type MetricRule = {

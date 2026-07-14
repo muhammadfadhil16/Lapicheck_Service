@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             FuzzyConfigSeeder::class,
             FuzzyRuleSeeder::class,
             FuzzyThresholdSeeder::class,
-            ProcessorSeeder::class,
+            LaptopSeeder::class,
             AiRelevanceKeywordSeeder::class,
             AiSettingSeeder::class,
         ]);
