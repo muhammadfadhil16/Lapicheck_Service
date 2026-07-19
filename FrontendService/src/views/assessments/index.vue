@@ -72,7 +72,7 @@
                       Kondisi Fisik LCD
                     </label>
                     <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
-                      {{ form.lcd_score }} / 100
+                      {{ getSelectedOptionTitle(form.lcd_score, lcdOptions) }}
                     </span>
                   </div>
                   <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
@@ -84,8 +84,8 @@
                       :class="form.lcd_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
                       @click="selectLcd(option)"
                     >
-                      <span class="block font-label-bold text-label-bold">{{ option.value }} / 100</span>
-                      <span class="mt-xs block text-caption text-on-surface-variant">{{ option.label }}</span>
+                      <span class="block font-label-bold text-label-bold">{{ getOptionTitle(option) }}</span>
+                      <span class="mt-xs block text-caption text-on-surface-variant">{{ getOptionDescription(option) }}</span>
                     </button>
                   </div>
                   <p class="font-caption text-caption text-on-surface-variant">
@@ -243,7 +243,7 @@
                       Fungsi Keyboard
                     </label>
                     <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
-                      {{ form.keyboard_score }} / 100
+                      {{ getSelectedOptionTitle(form.keyboard_score, keyboardOptions) }}
                     </span>
                   </div>
                   <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
@@ -255,8 +255,8 @@
                       :class="form.keyboard_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
                       @click="selectKeyboard(option)"
                     >
-                      <span class="block font-label-bold text-label-bold">{{ option.value }} / 100</span>
-                      <span class="mt-xs block text-caption text-on-surface-variant">{{ option.label }}</span>
+                      <span class="block font-label-bold text-label-bold">{{ getOptionTitle(option) }}</span>
+                      <span class="mt-xs block text-caption text-on-surface-variant">{{ getOptionDescription(option) }}</span>
                     </button>
                   </div>
                   <p class="font-caption text-caption text-on-surface-variant">
@@ -923,12 +923,21 @@ const filteredCurrencyOptions = computed(() => {
 })
 
 const batteryRanges = [
-  { range: '85-100%', label: 'Sangat sehat' },
-  { range: '70-84%', label: 'Normal' },
-  { range: '50-69%', label: 'Cukup' },
-  { range: '20-49%', label: 'Drop' },
-  { range: '0-19%', label: 'Rusak' },
+  { range: '0-65%', label: 'Rendah' },
+  { range: '65-70%', label: 'Transisi rendah-sedang' },
+  { range: '70-85%', label: 'Sedang' },
+  { range: '85-90%', label: 'Transisi sedang-tinggi' },
+  { range: '90-100%', label: 'Tinggi' },
 ]
+
+const getOptionTitle = (option: ScoreOption) => option.label.split(' — ')[0]
+
+const getOptionDescription = (option: ScoreOption) => option.label.split(' — ').slice(1).join(' — ')
+
+const getSelectedOptionTitle = (value: number | null, options: ScoreOption[]) => {
+  const option = options.find((item) => item.value === value)
+  return option ? getOptionTitle(option) : 'Belum ditentukan'
+}
 
 const selectLcd = (option: ScoreOption) => {
   form.lcd_score = option.value
@@ -955,11 +964,11 @@ const selectLaptop = () => {
 
 const getBatteryGuidance = (score: number | null) => {
   if (score === null) return 'Seret slider untuk menentukan kesehatan baterai...'
-  if (score >= 85) return 'Sangat Sehat / Awet (Kapasitas di atas 85%)'
-  if (score >= 70) return 'Kondisi Normal (Kapasitas 70% - 84%, awet wajar)'
-  if (score >= 50) return 'Kondisi Cukup / Agak Boros (Kapasitas 50% - 69%, perlu dicas lebih sering)'
-  if (score >= 20) return 'Baterai Drop / Kembung (Kapasitas 20% - 49%, harus dicolok charger terus)'
-  return 'Rusak Parah / Mati (Baterai tidak terdeteksi atau mati total)'
+  if (score >= 90) return 'Kategori Tinggi (tinggi penuh)'
+  if (score >= 85) return 'Transisi Sedang-Tinggi (sedang dan tinggi beririsan)'
+  if (score >= 70) return 'Kategori Sedang (sedang penuh)'
+  if (score > 65) return 'Transisi Rendah-Sedang (mulai berpindah)'
+  return 'Kategori Rendah (rendah penuh)'
 }
 
 const selectCurrency = (currency: CurrencyOption) => {

@@ -39,7 +39,7 @@ class FuzzyService
         $procTinggi = $this->evaluateNaik($processor, $rf['Processor']['tinggi']);
 
         // 3. TAHAP INFERENSI (Mamdani - MIN/MAX Dinamis)
-        $rulesMatrix = $rules['matrix_aturan'] ?? [];
+        $rulesMatrix = $this->applyUpdatedRuleDesign($rules['matrix_aturan'] ?? []);
         $outputs = [
             'tidak_layak' => [],
             'cukup_layak' => [],
@@ -96,14 +96,14 @@ class FuzzyService
         $cukupLayak = min(1.0, $cukupLayak);
         $layak = min(1.0, $layak);
 
-        // TAHAP DEFUZZIFIKASI (BISECTOR MURNI - FLOAT SAMPLING)
+        // TAHAP DEFUZZIFIKASI (BISECTOR MURNI - DISCRETE SAMPLING)
         $rd = $rules['defuzzifikasi']; 
         
         $muArray = [];
         $totalArea = 0.0;
-        $step = 0.1; // Precise float sampling
+        $step = 1.0; // Match the friend's 0..100 integer output domain
 
-        // 1. Sampling titik (z) dari 0 hingga 100 menggunakan step float
+        // 1. Sampling titik (z) dari 0 hingga 100 menggunakan step 1
         for ($z = 0.0; $z <= 100.0; $z = round($z + $step, 1)) {
             $muTidakLayak = min($tidakLayak, $this->evaluateTurun($z, $rd['tidak_layak']));
             $muCukupLayak = min($cukupLayak, $this->evaluateSedang($z, $rd['cukup_layak']));
@@ -209,5 +209,98 @@ class FuzzyService
             return $this->kurvaTrapesium($x, $params[0], $params[1], $params[2], $params[3]);
         }
         return $this->kurvaSegitiga($x, $params[0], $params[1], $params[2]);
+    }
+
+    /**
+     * Apply the 24 rule changes from the updated 243-rule design. The
+     * correction is limited to the complete legacy matrix so partial or
+     * custom matrices sent at runtime keep their declared outputs.
+     */
+    private function applyUpdatedRuleDesign(array $matrix): array
+    {
+        if (count($matrix) !== 243 || !$this->isLegacyRuleMatrix($matrix)) {
+            return $matrix;
+        }
+
+        foreach ($matrix as &$rule) {
+            if (($rule['output'] ?? null) !== 'cukup_layak') {
+                continue;
+            }
+
+            $processorIsLow = ($rule['processor'] ?? null) === 'rendah';
+            $lcdIsBad = ($rule['lcd'] ?? null) === 'buruk';
+            $keyboardIsBad = ($rule['keyboard'] ?? null) === 'buruk';
+            $ramIsLow = ($rule['ram'] ?? null) === 'rendah';
+            $batteryIsLow = ($rule['baterai'] ?? null) === 'rendah';
+
+            $bothPhysicalInputsAreBad = $lcdIsBad && $keyboardIsBad;
+            $onePhysicalInputIsBad = $lcdIsBad !== $keyboardIsBad;
+            $bothResourceInputsAreLow = $ramIsLow && $batteryIsLow;
+            $oneResourceInputIsLow = $ramIsLow !== $batteryIsLow;
+
+            $matchesUpdatedRule = ($bothPhysicalInputsAreBad && !$ramIsLow && !$batteryIsLow)
+                || ($onePhysicalInputIsBad && $oneResourceInputIsLow)
+                || (!$lcdIsBad && !$keyboardIsBad && $bothResourceInputsAreLow);
+
+            if ($processorIsLow && $matchesUpdatedRule) {
+                $rule['output'] = 'tidak_layak';
+            }
+        }
+        unset($rule);
+
+        return $matrix;
+    }
+
+    private function isLegacyRuleMatrix(array $matrix): bool
+    {
+        foreach ($matrix as $rule) {
+            if ($this->legacyRuleOutput($rule) !== ($rule['output'] ?? null)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function legacyRuleOutput(array $rule): string
+    {
+        $lcd = $rule['lcd'] ?? null;
+        $keyboard = $rule['keyboard'] ?? null;
+        $ram = $rule['ram'] ?? null;
+        $battery = $rule['baterai'] ?? null;
+
+        if ($lcd === 'buruk' && $keyboard === 'buruk' && $ram === 'rendah') {
+            return 'tidak_layak';
+        }
+
+        if ($lcd === 'buruk' && $keyboard === 'buruk' && $ram !== 'rendah' && $battery === 'rendah') {
+            return 'tidak_layak';
+        }
+
+        if ($lcd === 'buruk' && $keyboard !== 'buruk' && $ram === 'rendah' && $battery === 'rendah') {
+            return 'tidak_layak';
+        }
+
+        if ($lcd === 'sedang' && $keyboard === 'buruk' && $ram === 'rendah' && $battery === 'rendah') {
+            return 'tidak_layak';
+        }
+
+        if ($lcd === 'baik' && $keyboard === 'buruk' && $ram === 'rendah' && $battery === 'rendah') {
+            return 'tidak_layak';
+        }
+
+        if ($lcd === 'sedang' && $keyboard === 'baik' && $ram !== 'rendah' && $battery === 'tinggi') {
+            return 'layak';
+        }
+
+        if ($lcd === 'baik' && $keyboard === 'sedang' && $ram !== 'rendah' && $battery === 'tinggi') {
+            return 'layak';
+        }
+
+        if ($lcd === 'baik' && $keyboard === 'baik' && $ram !== 'rendah' && $battery !== 'rendah') {
+            return 'layak';
+        }
+
+        return 'cukup_layak';
     }
 }
