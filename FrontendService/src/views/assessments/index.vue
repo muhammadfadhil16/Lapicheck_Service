@@ -89,7 +89,7 @@
                     </button>
                   </div>
                   <p class="font-caption text-caption text-on-surface-variant">
-                    Pilih kondisi berdasarkan hasil pemeriksaan fisik agar nilai tidak ditentukan secara subjektif.
+                    Pilih kondisi berdasarkan hasil pemeriksaan fisik dan fungsional.
                   </p>
                   <p v-if="formErrors.lcd_score" class="font-caption text-caption text-error flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">error</span>
@@ -260,7 +260,7 @@
                     </button>
                   </div>
                   <p class="font-caption text-caption text-on-surface-variant">
-                    Pilih berdasarkan hasil tes tombol agar teknisi tidak menentukan persentase manual.
+                    Pilih berdasarkan hasil tes fungsional.
                   </p>
                   <p v-if="formErrors.keyboard_score" class="font-caption text-caption text-error flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">error</span>
@@ -363,7 +363,7 @@
                 <div
                   class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-xs font-caption text-caption text-on-surface-variant"
                 >
-                  <span>Masukkan harga device di waktu sekarang bisa mencari di internet sesuai mata uang yang dipilih.</span>
+                  <span>Masukkan harga pasaran device di waktu sekarang sesuai mata uang yang dipilih.</span>
                   <span v-if="form.price !== null" class="font-semibold text-primary">
                     Preview: {{ selectedCurrency.symbol
                     }}{{ formatNumber(form.price, selectedCurrency.locale) }}
