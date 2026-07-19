@@ -17,14 +17,14 @@ class FuzzyConfigSeeder extends Seeder
             ['variable' => 'LCD', 'category' => 'sedang', 'curve_type' => 'trapesium', 'parameters' => [55, 65, 75, 85]],
             ['variable' => 'LCD', 'category' => 'baik', 'curve_type' => 'trapesium', 'parameters' => [75, 85, 100, 100]],
 
-            // Kesehatan Baterai (Rendah, Sedang, Tinggi) - match fuzzy3.py trapezium
-            ['variable' => 'KesehatanBaterai', 'category' => 'rendah', 'curve_type' => 'trapesium', 'parameters' => [0, 0, 60, 70]],
-            ['variable' => 'KesehatanBaterai', 'category' => 'sedang', 'curve_type' => 'segitiga', 'parameters' => [60, 70, 85]],
-            ['variable' => 'KesehatanBaterai', 'category' => 'tinggi', 'curve_type' => 'trapesium', 'parameters' => [70, 85, 100, 100]],
+            // Kesehatan Baterai (Rendah, Sedang, Tinggi) - updated fuzzy design
+            ['variable' => 'KesehatanBaterai', 'category' => 'rendah', 'curve_type' => 'trapesium', 'parameters' => [0, 0, 65, 70]],
+            ['variable' => 'KesehatanBaterai', 'category' => 'sedang', 'curve_type' => 'trapesium', 'parameters' => [65, 70, 85, 90]],
+            ['variable' => 'KesehatanBaterai', 'category' => 'tinggi', 'curve_type' => 'trapesium', 'parameters' => [85, 90, 100, 100]],
 
-            // Processor (Rendah, Sedang, Tinggi) - match fuzzy3.py trapezium
-            ['variable' => 'Processor', 'category' => 'rendah', 'curve_type' => 'trapesium', 'parameters' => [0, 0, 8000, 10000]],
-            ['variable' => 'Processor', 'category' => 'sedang', 'curve_type' => 'trapesium', 'parameters' => [8000, 10000, 18000, 20000]],
+            // Processor (Rendah, Sedang, Tinggi) - updated fuzzy design
+            ['variable' => 'Processor', 'category' => 'rendah', 'curve_type' => 'trapesium', 'parameters' => [0, 0, 5000, 8000]],
+            ['variable' => 'Processor', 'category' => 'sedang', 'curve_type' => 'trapesium', 'parameters' => [5000, 8000, 18000, 20000]],
             ['variable' => 'Processor', 'category' => 'tinggi', 'curve_type' => 'trapesium', 'parameters' => [18000, 20000, 64946, 64946]],
 
             // Kondisi Keyboard (Buruk, Sedang, Baik) - match fuzzy3.py trapezium

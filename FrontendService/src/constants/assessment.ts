@@ -71,23 +71,23 @@ export const DEFAULT_STATUS_COLOR = '#1a1c1e'
 export const DEFAULT_METRIC_COLOR = DEFAULT_STATUS_COLOR
 
 export const LCD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Normal — gambar jernih, tanpa garis, bercak, atau kedip' },
-  { value: 80, label: 'Cacat ringan — baret atau white spot kecil, tampilan tetap jelas' },
-  { value: 60, label: 'Cacat sedang — shadow, burn-in, dead pixel, atau garis ringan' },
-  { value: 0, label: 'Rusak berat — retak, bocor, flicker parah, atau layar mati' },
+  { value: 100, label: 'Baik — gambar jernih, tanpa garis, bercak, atau kedip' },
+  { value: 80, label: 'Sedang — cacat ringan, tampilan masih cukup jelas' },
+  { value: 60, label: 'Sedang — shadow, burn-in, dead pixel, atau garis ringan' },
+  { value: 0, label: 'Buruk — retak, bocor, flicker parah, atau layar mati' },
 ]
 
 export const KEYBOARD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Normal — seluruh tombol responsif dan berfungsi' },
-  { value: 80, label: 'Cacat ringan — fisik aus atau 1–2 tombol kurang nyaman' },
-  { value: 60, label: 'Cacat sedang — 1–2 tombol fungsi sekunder tidak berfungsi' },
-  { value: 0, label: 'Rusak berat — tombol utama mati, ghosting, atau korslet' },
+  { value: 100, label: 'Baik — seluruh tombol responsif dan berfungsi' },
+  { value: 80, label: 'Sedang — fisik aus atau 1–2 tombol kurang nyaman' },
+  { value: 60, label: 'Sedang — 1–2 tombol fungsi sekunder tidak berfungsi' },
+  { value: 0, label: 'Buruk — tombol utama mati, ghosting, atau korslet' },
 ]
 
 export const RAM_OPTIONS: ScoreOption[] = [
   { value: 4, label: '4 GB (Kategori: Rendah)' },
   { value: 8, label: '8 GB (Kategori: Sedang)' },
-  { value: 12, label: '12 GB (Kategori: Sedang)' },
+  { value: 12, label: '12 GB (Kategori: Tinggi)' },
   { value: 16, label: '16 GB (Kategori: Tinggi)' },
   { value: 32, label: '32 GB (Kategori: Tinggi)' },
 ]
