@@ -26,11 +26,29 @@
                 </span>
                 Nama Perangkat / Model
               </label>
-              <SearchDropdown v-model="selectedBrandId" placeholder="Pilih merk laptop" :options="brandOptions" @select="loadBrandLaptops" />
-              <SearchDropdown v-model="form.laptop_id" placeholder="Pilih model laptop" :options="laptopOptions" :disabled="!selectedBrandId" @select="selectLaptop" />
-              <p class="text-caption text-on-surface-variant">Processor dan benchmark akan terisi otomatis.</p>
-              <RouterLink to="/laptops" class="text-left text-caption text-primary hover:underline">Kelola data laptop di menu Data Laptop</RouterLink>
-              <p v-if="formErrors.laptop_name" class="font-caption text-caption text-error flex items-center gap-1 mt-1">
+              <SearchDropdown
+                v-model="selectedBrandId"
+                placeholder="Pilih merk laptop"
+                :options="brandOptions"
+                @select="loadBrandLaptops"
+              />
+              <SearchDropdown
+                v-model="form.laptop_id"
+                placeholder="Pilih model laptop"
+                :options="laptopOptions"
+                :disabled="!selectedBrandId"
+                @select="selectLaptop"
+              />
+              <p class="text-caption text-on-surface-variant">
+                Processor dan benchmark akan terisi otomatis.
+              </p>
+              <RouterLink to="/laptops" class="text-left text-caption text-primary hover:underline"
+                >Kelola data laptop di menu Data Laptop</RouterLink
+              >
+              <p
+                v-if="formErrors.laptop_name"
+                class="font-caption text-caption text-error flex items-center gap-1 mt-1"
+              >
                 <span class="material-symbols-outlined text-[14px]">error</span>
                 {{ formErrors.laptop_name }}
               </p>
@@ -50,13 +68,20 @@
                 id="customer-name"
                 v-model="form.customer_name"
                 class="w-full bg-surface-container border text-on-surface font-body-md text-body-md py-md px-lg rounded-2xl focus:border-2 focus:bg-surface focus:outline-none transition-all shadow-sm"
-                :class="formErrors.customer_name ? 'border-error focus:border-error' : 'border-outline-variant/50 focus:border-primary'"
+                :class="
+                  formErrors.customer_name
+                    ? 'border-error focus:border-error'
+                    : 'border-outline-variant/50 focus:border-primary'
+                "
                 placeholder="Contoh: Ahmad Fauzi, John Doe..."
                 type="text"
                 required
                 @input="clearFieldError('customer_name')"
               />
-              <p v-if="formErrors.customer_name" class="font-caption text-caption text-error flex items-center gap-1 mt-1">
+              <p
+                v-if="formErrors.customer_name"
+                class="font-caption text-caption text-error flex items-center gap-1 mt-1"
+              >
                 <span class="material-symbols-outlined text-[14px]">error</span>
                 {{ formErrors.customer_name }}
               </p>
@@ -65,83 +90,121 @@
             <div
               class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
             >
-                <div class="flex flex-col gap-sm">
-                  <div class="flex justify-between items-center">
-                    <label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]">
-                      <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">monitor</span>
-                      Kondisi Fisik LCD
-                    </label>
-                    <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
-                      {{ getSelectedOptionTitle(form.lcd_score, lcdOptions) }}
-                    </span>
-                  </div>
-                  <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
-                    <button
-                      v-for="option in lcdOptions"
-                      :key="option.value"
-                      type="button"
-                      class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
-                      :class="form.lcd_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
-                      @click="selectLcd(option)"
+              <div class="flex flex-col gap-sm">
+                <div class="flex justify-between items-center">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                      >monitor</span
                     >
-                      <span class="block font-label-bold text-label-bold">{{ getOptionTitle(option) }}</span>
-                      <span class="mt-xs block text-caption text-on-surface-variant">{{ getOptionDescription(option) }}</span>
-                    </button>
-                  </div>
-                  <p class="font-caption text-caption text-on-surface-variant">
-                    Pilih kondisi berdasarkan hasil pemeriksaan fisik dan fungsional.
-                  </p>
-                  <p v-if="formErrors.lcd_score" class="font-caption text-caption text-error flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[14px]">error</span>
-                    {{ formErrors.lcd_score }}
-                  </p>
+                    Kondisi Fisik LCD
+                  </label>
+                  <span
+                    class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
+                  >
+                    {{ getSelectedOptionTitle(form.lcd_score, lcdOptions) }}
+                  </span>
                 </div>
+                <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
+                  <button
+                    v-for="option in lcdOptions"
+                    :key="option.value"
+                    type="button"
+                    class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
+                    :class="
+                      form.lcd_score === option.value
+                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                        : 'border-outline-variant/50 bg-surface-container text-on-surface'
+                    "
+                    @click="selectLcd(option)"
+                  >
+                    <span class="block font-label-bold text-label-bold">{{
+                      getOptionTitle(option)
+                    }}</span>
+                    <span class="mt-xs block text-caption text-on-surface-variant">{{
+                      getOptionDescription(option)
+                    }}</span>
+                  </button>
+                </div>
+                <p class="font-caption text-caption text-on-surface-variant">
+                  Pilih kondisi berdasarkan hasil pemeriksaan fisik dan fungsional.
+                </p>
+                <p
+                  v-if="formErrors.lcd_score"
+                  class="font-caption text-caption text-error flex items-center gap-1"
+                >
+                  <span class="material-symbols-outlined text-[14px]">error</span>
+                  {{ formErrors.lcd_score }}
+                </p>
+              </div>
 
               <div class="flex flex-col gap-sm">
-                  <div class="flex justify-between items-center">
-                    <label
-                      class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                      for="battery-slider"
+                <div class="flex justify-between items-center">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                    for="battery-slider"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
                     >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
-                      >
-                        battery_charging_full
-                      </span>
-                      Kesehatan Baterai
-                    </label>
-                    <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
-                      {{ form.battery_health }} %
+                      battery_charging_full
                     </span>
-                  </div>
-                  <div class="relative flex flex-col gap-xs py-xs">
-                    <input
-                      id="battery-slider"
-                      v-model.number="form.battery_health"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      class="w-full h-2 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
-                      :class="formErrors.battery_health ? 'bg-error/30 accent-error' : 'bg-surface-container-highest accent-primary'"
-                      required
-                      @input="clearFieldError('battery_health')"
-                    />
-                    <span class="text-caption text-on-surface-variant/90 mt-xs leading-relaxed italic block transition-all duration-300">
-                      <span class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
-                      {{ getBatteryGuidance(form.battery_health) }}
-                    </span>
-                    <div class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3">
-                      <span v-for="item in batteryRanges" :key="item.label" class="rounded-lg bg-surface-container px-sm py-xs">
-                        {{ item.range }}: {{ item.label }}
-                      </span>
-                    </div>
-                    <p v-if="formErrors.battery_health" class="font-caption text-caption text-error flex items-center gap-1">
-                      <span class="material-symbols-outlined text-[14px]">error</span>
-                      {{ formErrors.battery_health }}
-                    </p>
-                  </div>
+                    Kesehatan Baterai
+                  </label>
+                  <span
+                    class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
+                  >
+                    {{ form.battery_health }} %
+                  </span>
                 </div>
+                <div class="relative flex flex-col gap-xs py-xs">
+                  <input
+                    id="battery-slider"
+                    v-model.number="form.battery_health"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    class="w-full h-2 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
+                    :class="
+                      formErrors.battery_health
+                        ? 'bg-error/30 accent-error'
+                        : 'bg-surface-container-highest accent-primary'
+                    "
+                    required
+                    @input="clearFieldError('battery_health')"
+                  />
+                  <span
+                    class="text-caption text-on-surface-variant/90 mt-xs leading-relaxed italic block transition-all duration-300"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[14px] align-middle mr-1 text-primary"
+                      >info</span
+                    >
+                    {{ getBatteryGuidance(form.battery_health) }}
+                  </span>
+                  <div
+                    class="grid grid-cols-2 gap-xs text-[11px] text-on-surface-variant sm:grid-cols-3"
+                  >
+                    <span
+                      v-for="item in batteryRanges"
+                      :key="item.label"
+                      class="rounded-lg bg-surface-container px-sm py-xs"
+                    >
+                      {{ item.range }}: {{ item.label }}
+                    </span>
+                  </div>
+                  <p
+                    v-if="formErrors.battery_health"
+                    class="font-caption text-caption text-error flex items-center gap-1"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">error</span>
+                    {{ formErrors.battery_health }}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div
@@ -164,13 +227,17 @@
                     id="ram-select"
                     v-model="ramSearch"
                     class="w-full bg-surface-container border text-on-surface font-body-md text-body-md py-md pl-lg pr-12 rounded-2xl focus:border-2 focus:bg-surface focus:outline-none transition-all shadow-sm"
-                    :class="formErrors.ram_capacity ? 'border-error focus:border-error' : 'border-outline-variant/50 focus:border-primary'"
+                    :class="
+                      formErrors.ram_capacity
+                        ? 'border-error focus:border-error'
+                        : 'border-outline-variant/50 focus:border-primary'
+                    "
                     placeholder="Pilih kapasitas RAM..."
                     autocomplete="off"
                     required
-                    @focus="openDropdown = 'ram'"
-                    @input="form.ram_capacity = null; clearFieldError('ram_capacity')"
-                    @blur="closeDropdown"
+                     @focus="openDropdown = 'ram'"
+                     @input="handleRamInput"
+                     @blur="closeDropdown"
                   />
                   <span
                     class="material-symbols-outlined pointer-events-none absolute right-md top-1/2 -translate-y-1/2 text-[22px] text-primary"
@@ -207,7 +274,10 @@
                     </p>
                   </div>
                 </div>
-                <p v-if="formErrors.ram_capacity" class="font-caption text-caption text-error flex items-center gap-1">
+                <p
+                  v-if="formErrors.ram_capacity"
+                  class="font-caption text-caption text-error flex items-center gap-1"
+                >
                   <span class="material-symbols-outlined text-[14px]">error</span>
                   {{ formErrors.ram_capacity }}
                 </p>
@@ -222,51 +292,76 @@
                   >
                     speed
                   </span>
-                   CPU / Processor
-                 </label>
+                  CPU / Processor
+                </label>
 
-                  <div v-if="selectedLaptop" class="rounded-2xl border border-outline-variant/30 bg-surface-container p-md">
-                   <p class="font-medium text-on-surface">{{ selectedLaptop.processor_name }}</p>
-                   <p class="text-caption text-on-surface-variant">Benchmark {{ selectedLaptop.benchmark_score }} · {{ selectedLaptop.category }}</p>
-                 </div>
-                  <p v-else class="text-caption text-on-surface-variant">Pilih merk dan model laptop terlebih dahulu.</p>
+                <div
+                  v-if="selectedLaptop"
+                  class="rounded-2xl border border-outline-variant/30 bg-surface-container p-md"
+                >
+                  <p class="font-medium text-on-surface">{{ selectedLaptop.processor_name }}</p>
+                  <p class="text-caption text-on-surface-variant">
+                    Benchmark {{ selectedLaptop.benchmark_score }} · {{ selectedLaptop.category }}
+                  </p>
+                </div>
+                <p v-else class="text-caption text-on-surface-variant">
+                  Pilih merk dan model laptop terlebih dahulu.
+                </p>
               </div>
             </div>
 
             <div
               class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
             >
-                <div class="flex flex-col gap-sm">
-                  <div class="flex justify-between items-center">
-                    <label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]">
-                      <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">keyboard</span>
-                      Fungsi Keyboard
-                    </label>
-                    <span class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]">
-                      {{ getSelectedOptionTitle(form.keyboard_score, keyboardOptions) }}
-                    </span>
-                  </div>
-                  <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
-                    <button
-                      v-for="option in keyboardOptions"
-                      :key="option.value"
-                      type="button"
-                      class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
-                      :class="form.keyboard_score === option.value ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-outline-variant/50 bg-surface-container text-on-surface'"
-                      @click="selectKeyboard(option)"
+              <div class="flex flex-col gap-sm">
+                <div class="flex justify-between items-center">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                      >keyboard</span
                     >
-                      <span class="block font-label-bold text-label-bold">{{ getOptionTitle(option) }}</span>
-                      <span class="mt-xs block text-caption text-on-surface-variant">{{ getOptionDescription(option) }}</span>
-                    </button>
-                  </div>
-                  <p class="font-caption text-caption text-on-surface-variant">
-                    Pilih berdasarkan hasil tes fungsional.
-                  </p>
-                  <p v-if="formErrors.keyboard_score" class="font-caption text-caption text-error flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[14px]">error</span>
-                    {{ formErrors.keyboard_score }}
-                  </p>
+                    Fungsi Keyboard
+                  </label>
+                  <span
+                    class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
+                  >
+                    {{ getSelectedOptionTitle(form.keyboard_score, keyboardOptions) }}
+                  </span>
                 </div>
+                <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
+                  <button
+                    v-for="option in keyboardOptions"
+                    :key="option.value"
+                    type="button"
+                    class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
+                    :class="
+                      form.keyboard_score === option.value
+                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                        : 'border-outline-variant/50 bg-surface-container text-on-surface'
+                    "
+                    @click="selectKeyboard(option)"
+                  >
+                    <span class="block font-label-bold text-label-bold">{{
+                      getOptionTitle(option)
+                    }}</span>
+                    <span class="mt-xs block text-caption text-on-surface-variant">{{
+                      getOptionDescription(option)
+                    }}</span>
+                  </button>
+                </div>
+                <p class="font-caption text-caption text-on-surface-variant">
+                  Pilih berdasarkan hasil tes fungsional.
+                </p>
+                <p
+                  v-if="formErrors.keyboard_score"
+                  class="font-caption text-caption text-error flex items-center gap-1"
+                >
+                  <span class="material-symbols-outlined text-[14px]">error</span>
+                  {{ formErrors.keyboard_score }}
+                </p>
+              </div>
 
               <div class="flex flex-col gap-sm">
                 <label
@@ -282,7 +377,11 @@
                 </label>
                 <div
                   class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_112px] shadow-sm rounded-2xl overflow-visible bg-surface-container transition-all"
-                  :class="formErrors.price ? 'border-2 border-error' : 'border border-outline-variant/50 focus-within:border-2 focus-within:border-primary'"
+                  :class="
+                    formErrors.price
+                      ? 'border-2 border-error'
+                      : 'border border-outline-variant/50 focus-within:border-2 focus-within:border-primary'
+                  "
                 >
                   <div class="relative min-w-0">
                     <div
@@ -298,7 +397,7 @@
                       class="block w-full min-w-0 rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none ps-14 pe-4 py-md bg-transparent text-on-surface font-mono text-[15px] sm:text-body-md tracking-tight focus:bg-surface focus:outline-none transition-all"
                       inputmode="numeric"
                       required
-                      @input="handleMarketPriceInput($event); clearFieldError('price')"
+                       @input="handleMarketPriceInput($event)"
                       @blur="handleMarketPriceBlur"
                     />
                   </div>
@@ -363,13 +462,19 @@
                 <div
                   class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-xs font-caption text-caption text-on-surface-variant"
                 >
-                  <span>Masukkan harga pasaran device di waktu sekarang sesuai mata uang yang dipilih.</span>
+                  <span
+                    >Masukkan harga pasaran device di waktu sekarang sesuai mata uang yang
+                    dipilih.</span
+                  >
                   <span v-if="form.price !== null" class="font-semibold text-primary">
                     Preview: {{ selectedCurrency.symbol
                     }}{{ formatNumber(form.price, selectedCurrency.locale) }}
                   </span>
                 </div>
-                <p v-if="formErrors.price" class="font-caption text-caption text-error flex items-center gap-1">
+                <p
+                  v-if="formErrors.price"
+                  class="font-caption text-caption text-error flex items-center gap-1"
+                >
                   <span class="material-symbols-outlined text-[14px]">error</span>
                   {{ formErrors.price }}
                 </p>
@@ -461,13 +566,21 @@
               ></textarea>
             </div>
 
-            <div class="flex items-center justify-between bg-surface-container border border-outline-variant/50 rounded-2xl px-lg py-md shadow-sm">
+            <div
+              class="flex items-center justify-between bg-surface-container border border-outline-variant/50 rounded-2xl px-lg py-md shadow-sm"
+            >
               <div class="flex items-center gap-sm">
                 <span class="material-symbols-outlined text-[18px] text-primary">psychology</span>
                 <div>
-                  <p class="font-label-bold text-label-bold text-on-surface text-[14px]">Analisis AI</p>
+                  <p class="font-label-bold text-label-bold text-on-surface text-[14px]">
+                    Analisis AI
+                  </p>
                   <p class="font-body-xs text-on-surface-variant text-[12px]">
-                    {{ aiAvailable ? 'Aktif otomatis untuk catatan tambahan' : 'AI tidak tersedia, penilaian fuzzy tetap berjalan' }}
+                    {{
+                      aiAvailable
+                        ? 'Aktif otomatis untuk catatan tambahan'
+                        : 'AI tidak tersedia, penilaian fuzzy tetap berjalan'
+                    }}
                   </p>
                 </div>
               </div>
@@ -523,11 +636,11 @@
               <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
               {{ pdfLoading ? 'Memproses...' : 'Export PDF' }}
             </button>
-            </div>
+          </div>
 
-            <div
-              class="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-lg mb-xl items-stretch"
-            >
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-lg mb-xl items-stretch"
+          >
             <div
               class="min-w-0 min-h-[176px] w-full bg-surface border border-outline-variant/30 px-lg py-xl flex flex-col items-center text-center rounded-[16px] shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
             >
@@ -699,7 +812,8 @@
               <span
                 v-if="result.ai_used === false"
                 class="text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold ml-auto"
-              >Estimasi</span>
+                >Estimasi</span
+              >
             </h4>
             <div
               class="bg-primary/[0.04] border border-primary/10 p-lg rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.01)] relative overflow-hidden"
@@ -801,7 +915,6 @@ import {
   type CurrencyOption,
   type MetricDefinition,
   type ScoreOption,
-
   type Laptop,
   type LaptopBrand,
 } from '@/constants/assessment'
@@ -821,12 +934,7 @@ import Swal from 'sweetalert2'
 
 defineOptions({ name: 'AssessmentIndex' })
 
-const {
-  evaluate,
-  getAiStatus,
-  getLaptopBrands,
-  getLaptops,
-} = evaluationService()
+const { evaluate, getAiStatus, getLaptopBrands, getLaptops } = evaluationService()
 
 const form = reactive({
   customer_name: '',
@@ -880,8 +988,16 @@ const laptopBrands = ref<LaptopBrand[]>([])
 const brandLaptops = ref<Laptop[]>([])
 const selectedBrandId = ref<number | null>(null)
 const selectedLaptop = computed(() => brandLaptops.value.find((item) => item.id === form.laptop_id))
-const brandOptions = computed(() => laptopBrands.value.map((brand) => ({ value: brand.id, label: brand.name })))
-const laptopOptions = computed(() => brandLaptops.value.map((laptop) => ({ value: laptop.id, label: laptop.model_name, description: `${laptop.processor_name} · Benchmark ${laptop.benchmark_score}` })))
+const brandOptions = computed(() =>
+  laptopBrands.value.map((brand) => ({ value: brand.id, label: brand.name })),
+)
+const laptopOptions = computed(() =>
+  brandLaptops.value.map((laptop) => ({
+    value: laptop.id,
+    label: laptop.model_name,
+    description: `${laptop.processor_name} · Benchmark ${laptop.benchmark_score}`,
+  })),
+)
 
 const loadBrandLaptops = async () => {
   form.laptop_id = null
@@ -953,6 +1069,11 @@ const selectRam = (option: ScoreOption) => {
   form.ram_capacity = option.value
   ramSearch.value = option.label
   openDropdown.value = null
+  clearFieldError('ram_capacity')
+}
+
+const handleRamInput = () => {
+  form.ram_capacity = null
   clearFieldError('ram_capacity')
 }
 
@@ -1227,10 +1348,14 @@ const handleEstimation = async () => {
     if (hasWarning) {
       const warnings: string[] = []
       if (response.description_ignored) {
-        warnings.push('Catatan tambahan tidak diikutsertakan karena tidak relevan dengan analisis laptop.')
+        warnings.push(
+          'Catatan tambahan tidak diikutsertakan karena tidak relevan dengan analisis laptop.',
+        )
       }
       if (aiFailed) {
-        warnings.push('Fitur Analisis AI tidak dapat digunakan saat ini. Hasil analisis menggunakan metode estimasi standar.')
+        warnings.push(
+          'Fitur Analisis AI tidak dapat digunakan saat ini. Hasil analisis menggunakan metode estimasi standar.',
+        )
       }
       Swal.fire({
         title: 'Estimasi Berhasil!',
@@ -1391,9 +1516,10 @@ const handleExportPDF = async () => {
     Swal.close()
     Swal.fire({
       title: 'Gagal Mengekspor PDF',
-      text: error instanceof Error
-        ? error.message
-        : 'Terjadi kesalahan saat menghasilkan PDF. Silakan coba lagi.',
+      text:
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat menghasilkan PDF. Silakan coba lagi.',
       icon: 'error',
       background: '#faf9fd',
       customClass: { popup: 'rounded-[24px]' },
