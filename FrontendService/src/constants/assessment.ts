@@ -71,16 +71,16 @@ export const DEFAULT_STATUS_COLOR = '#1a1c1e'
 export const DEFAULT_METRIC_COLOR = DEFAULT_STATUS_COLOR
 
 export const LCD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Baik — gambar jernih, tanpa garis, bercak, atau kedip' },
-  { value: 80, label: 'Sedang — cacat ringan, tampilan masih cukup jelas' },
-  { value: 60, label: 'Sedang — shadow, burn-in, dead pixel, atau garis ringan' },
+  { value: 100, label: 'Sangat Baik — gambar jernih, tanpa garis, bercak, atau kedip' },
+  { value: 80, label: 'Cukup Baik — cacat ringan, tampilan masih cukup jelas' },
+  { value: 60, label: 'Kurang Baik — shadow, burn-in, dead pixel, atau garis ringan' },
   { value: 0, label: 'Buruk — retak, bocor, flicker parah, atau layar mati' },
 ]
 
 export const KEYBOARD_OPTIONS: ScoreOption[] = [
-  { value: 100, label: 'Baik — seluruh tombol responsif dan berfungsi' },
-  { value: 80, label: 'Sedang — fisik aus atau 1–2 tombol kurang nyaman' },
-  { value: 60, label: 'Sedang — 1–2 tombol fungsi sekunder tidak berfungsi' },
+  { value: 100, label: 'Sangat Baik — seluruh tombol responsif dan berfungsi' },
+  { value: 80, label: 'Cukup Baik — fisik aus atau 1–2 tombol kurang nyaman' },
+  { value: 60, label: 'Kurang Baik — 1–2 tombol fungsi sekunder tidak berfungsi' },
   { value: 0, label: 'Buruk — tombol utama mati, ghosting, atau korslet' },
 ]
 
