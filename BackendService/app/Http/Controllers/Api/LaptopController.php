@@ -6,13 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Laptop;
 use App\Models\LaptopBrand;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class LaptopController extends Controller
 {
-    public function brands()
+    public function brands(Request $request)
     {
-        return response()->json(['data' => Cache::store('file')->remember('laptop_brands', now()->addMinutes(10), fn () => LaptopBrand::withCount('laptops')->orderBy('name')->get(['id', 'name']))]);
+        return response()->json(LaptopBrand::withCount('laptops')->orderBy('name')->paginate(min($request->integer('per_page', 10), 100), ['id', 'name']));
     }
 
     public function storeBrand(Request $request)
@@ -35,8 +34,6 @@ class LaptopController extends Controller
             $brand = LaptopBrand::create(['name' => $name]);
         }
 
-        Cache::store('file')->forget('laptop_brands');
-
         return response()->json(['status' => 'success', 'data' => $brand->loadCount('laptops')], 201);
     }
 
@@ -44,8 +41,6 @@ class LaptopController extends Controller
     {
         $data = $request->validate(['name' => 'required|string|max:255|unique:laptop_brands,name,' . $brand->id]);
         $brand->update(['name' => trim($data['name'])]);
-        Cache::store('file')->forget('laptop_brands');
-
         return response()->json(['status' => 'success', 'data' => $brand->loadCount('laptops')]);
     }
 
@@ -56,8 +51,6 @@ class LaptopController extends Controller
         }
 
         $brand->delete();
-        Cache::store('file')->forget('laptop_brands');
-
         return response()->json(['status' => 'success', 'message' => 'Brand berhasil diarsipkan.']);
     }
 
@@ -68,7 +61,7 @@ class LaptopController extends Controller
             $query->where('brand_id', $request->integer('brand_id'));
         }
 
-        return response()->json(['data' => $query->get(['id', 'brand_id', 'model_name', 'processor_name', 'benchmark_score', 'category'])]);
+        return response()->json($query->paginate(min($request->integer('per_page', 10), 100), ['id', 'brand_id', 'model_name', 'processor_name', 'benchmark_score', 'category']));
     }
 
     public function update(Request $request, Laptop $laptop)

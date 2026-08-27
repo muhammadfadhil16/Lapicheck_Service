@@ -68,6 +68,10 @@ export interface PaginationMeta {
   to: number
 }
 
+export interface PaginatedResponse<T> extends PaginationMeta {
+  data: T[]
+}
+
 export interface AssessmentListResponse {
   data: EvaluationData[]
   current_page: number
@@ -87,7 +91,10 @@ export const evaluationService = () => {
     return response.data.available === true
   }
 
-  const getAiModels = async (): Promise<{ models: { id: string; name: string }[]; selected: string }> => {
+  const getAiModels = async (): Promise<{
+    models: { id: string; name: string }[]
+    selected: string
+  }> => {
     const response = await api.get('/api/ai/models')
     return { models: response.data.data, selected: response.data.selected }
   }
@@ -116,8 +123,13 @@ export const evaluationService = () => {
   }
 
   const getLaptopBrands = async (): Promise<LaptopBrand[]> => {
-    const response = await api.get('/api/laptop-brands')
+    const response = await api.get('/api/laptop-brands', { params: { per_page: 100 } })
     return response.data.data || response.data
+  }
+
+  const getLaptopBrandsPage = async (page: number): Promise<PaginatedResponse<LaptopBrand>> => {
+    const response = await api.get('/api/laptop-brands', { params: { page } })
+    return response.data
   }
 
   const createLaptopBrand = async (name: string): Promise<LaptopBrand> => {
@@ -135,16 +147,36 @@ export const evaluationService = () => {
   }
 
   const getLaptops = async (brandId?: number): Promise<Laptop[]> => {
-    const response = await api.get('/api/laptops', { params: brandId ? { brand_id: brandId } : undefined })
+    const response = await api.get('/api/laptops', {
+      params: { per_page: 100, ...(brandId ? { brand_id: brandId } : {}) },
+    })
     return response.data.data || response.data
   }
 
-  const createLaptop = async (data: { brand_name: string; model_name: string; processor_name: string; benchmark_score: number }): Promise<Laptop> => {
+  const getLaptopsPage = async (
+    page: number,
+    brandId?: number,
+  ): Promise<PaginatedResponse<Laptop>> => {
+    const response = await api.get('/api/laptops', {
+      params: { page, ...(brandId ? { brand_id: brandId } : {}) },
+    })
+    return response.data
+  }
+
+  const createLaptop = async (data: {
+    brand_name: string
+    model_name: string
+    processor_name: string
+    benchmark_score: number
+  }): Promise<Laptop> => {
     const response = await api.post('/api/laptops', data)
     return response.data.data
   }
 
-  const updateLaptop = async (id: number, data: { brand_id: number; model_name: string; processor_name: string; benchmark_score: number }): Promise<Laptop> => {
+  const updateLaptop = async (
+    id: number,
+    data: { brand_id: number; model_name: string; processor_name: string; benchmark_score: number },
+  ): Promise<Laptop> => {
     const response = await api.put(`/api/laptops/${id}`, data)
     return response.data.data
   }
@@ -206,7 +238,7 @@ export const evaluationService = () => {
 
   const getAllAssessments = async (
     page: number = 1,
-    filters?: { search?: string; start_date?: string; end_date?: string }
+    filters?: { search?: string; start_date?: string; end_date?: string },
   ): Promise<AssessmentListResponse> => {
     try {
       const params = new URLSearchParams({ page: String(page) })
@@ -268,10 +300,12 @@ export const evaluationService = () => {
     getAssessmentById,
     deleteAssessment,
     getLaptopBrands,
+    getLaptopBrandsPage,
     createLaptopBrand,
     updateLaptopBrand,
     deleteLaptopBrand,
     getLaptops,
+    getLaptopsPage,
     createLaptop,
     updateLaptop,
     deleteLaptop,

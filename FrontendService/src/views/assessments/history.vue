@@ -210,49 +210,8 @@
         </table>
       </div>
 
-      <!-- Pagination Footer -->
-      <div
-        v-if="!loading && historyData.length > 0"
-        class="flex flex-col sm:flex-row items-center justify-between px-lg py-md bg-surface-container/30 border-t border-outline-variant/30 gap-md mt-auto"
-      >
-        <span class="font-caption text-caption text-on-surface-variant">
-          Menampilkan {{ pagination.from }}-{{ pagination.to }} dari {{ pagination.total }}
-          penilaian
-        </span>
-        <div class="flex gap-sm">
-          <button
-            @click="fetchHistory(pagination.current_page - 1)"
-            :disabled="pagination.current_page === 1"
-            class="w-9 h-9 flex items-center justify-center rounded-xl border border-outline-variant/50 text-on-surface hover:bg-surface-container-high transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
-          </button>
+      <PaginationControl :pagination="pagination" label="penilaian" :loading="loading" @page="fetchHistory" />
 
-          <div class="flex gap-xs">
-            <button
-              v-for="page in pagination.last_page"
-              :key="page"
-              @click="fetchHistory(page)"
-              :class="[
-                'w-9 h-9 flex items-center justify-center rounded-xl font-label-bold transition-all',
-                pagination.current_page === page
-                  ? 'bg-primary text-on-primary shadow-md'
-                  : 'border border-outline-variant/50 text-on-surface hover:bg-surface-container-high',
-              ]"
-            >
-              {{ page }}
-            </button>
-          </div>
-
-          <button
-            @click="fetchHistory(pagination.current_page + 1)"
-            :disabled="pagination.current_page === pagination.last_page"
-            class="w-9 h-9 flex items-center justify-center rounded-xl border border-outline-variant/50 text-on-surface hover:bg-surface-container-high transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-          </button>
-        </div>
-      </div>
 
       <!-- Detail Modal -->
       <div
@@ -518,6 +477,7 @@ import { evaluationService, type EvaluationData, type ApiError } from '@/service
 import { renderReportToCanvas, saveCanvasAsPDF } from '@/utils/assessment'
 import { getImageUrl } from '@/composables/useApi'
 import Swal from 'sweetalert2'
+import PaginationControl from '@/components/ui/pagination-control.vue'
 
 defineOptions({ name: 'AssessmentHistory' })
 

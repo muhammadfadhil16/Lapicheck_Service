@@ -75,9 +75,10 @@
           </tr>
         </tbody>
       </table>
-      <p v-if="!filteredBrands.length" class="p-xl text-center text-on-surface-variant">
+      <p v-if="!loading && !filteredBrands.length" class="p-xl text-center text-on-surface-variant">
         Belum ada brand.
       </p>
+      <PaginationControl :pagination="pagination" label="brand" :loading="loading" @page="load" />
     </div>
   </section>
 </template>
@@ -87,8 +88,9 @@ import Swal from 'sweetalert2'
 import type { LaptopBrand } from '@/constants/assessment'
 import { evaluationService, type ApiError } from '@/services/evaluation'
 import Modal from '@/components/ui/modal.vue'
+import PaginationControl from '@/components/ui/pagination-control.vue'
 defineOptions({ name: 'LaptopBrands' })
-const { getLaptopBrands, createLaptopBrand, updateLaptopBrand, deleteLaptopBrand } =
+const { getLaptopBrandsPage, createLaptopBrand, updateLaptopBrand, deleteLaptopBrand } =
   evaluationService()
 const brands = ref<LaptopBrand[]>([])
 const searchQuery = ref('')
@@ -97,16 +99,25 @@ const editing = ref<LaptopBrand | null>(null)
 const name = ref('')
 const loading = ref(true)
 const saving = ref(false)
+const pagination = ref({ current_page: 1, last_page: 1, total: 0, from: 0, to: 0 })
 const filteredBrands = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
   return query
     ? brands.value.filter((brand) => brand.name.toLowerCase().includes(query))
     : brands.value
 })
-const load = async () => {
+const load = async (page = 1) => {
   loading.value = true
   try {
-    brands.value = await getLaptopBrands()
+    const response = await getLaptopBrandsPage(page)
+    brands.value = response.data
+    pagination.value = {
+      current_page: response.current_page,
+      last_page: response.last_page,
+      total: response.total,
+      from: response.from,
+      to: response.to,
+    }
   } finally {
     loading.value = false
   }
@@ -124,12 +135,10 @@ const edit = (brand: LaptopBrand) => {
 const save = async () => {
   saving.value = true
   try {
-    const brand = editing.value
-      ? await updateLaptopBrand(editing.value.id, name.value.trim())
-      : await createLaptopBrand(name.value.trim())
-    const index = brands.value.findIndex((item) => item.id === brand.id)
-    if (index >= 0) brands.value[index] = brand
-    else brands.value.push(brand)
+    await (editing.value
+      ? updateLaptopBrand(editing.value.id, name.value.trim())
+      : createLaptopBrand(name.value.trim()))
+    await load(pagination.value.current_page)
     formOpen.value = false
     await Swal.fire({
       title: 'Berhasil',

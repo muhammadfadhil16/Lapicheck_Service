@@ -48,7 +48,7 @@
         id="brand-filter"
         v-model="filterBrandId"
         class="field-input sm:flex-1"
-        @change="loadLaptops"
+        @change="loadLaptops(1)"
       >
         <option :value="null">Semua brand</option>
         <option v-for="brand in brands" :key="brand.id" :value="brand.id">
@@ -104,9 +104,13 @@
           </tr>
         </tbody>
       </table>
-      <p v-if="!filteredLaptops.length" class="p-xl text-center text-on-surface-variant">
+      <p
+        v-if="!loading && !filteredLaptops.length"
+        class="p-xl text-center text-on-surface-variant"
+      >
         Belum ada data laptop.
       </p>
+      <PaginationControl :pagination="pagination" label="laptop" :loading="loading" @page="loadLaptops" />
     </div>
   </section>
 </template>
@@ -116,8 +120,9 @@ import Swal from 'sweetalert2'
 import type { Laptop, LaptopBrand } from '@/constants/assessment'
 import { evaluationService } from '@/services/evaluation'
 import Modal from '@/components/ui/modal.vue'
+import PaginationControl from '@/components/ui/pagination-control.vue'
 defineOptions({ name: 'LaptopData' })
-const { getLaptopBrands, getLaptops, createLaptop, updateLaptop, deleteLaptop } =
+const { getLaptopBrands, getLaptopsPage, createLaptop, updateLaptop, deleteLaptop } =
   evaluationService()
 const brands = ref<LaptopBrand[]>([])
 const laptops = ref<Laptop[]>([])
@@ -127,6 +132,7 @@ const showForm = ref(false)
 const editing = ref<Laptop | null>(null)
 const loading = ref(true)
 const saving = ref(false)
+const pagination = ref({ current_page: 1, last_page: 1, total: 0, from: 0, to: 0 })
 const form = reactive({ brand_name: '', model_name: '', processor_name: '', benchmark_score: 0 })
 const filteredLaptops = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
@@ -137,22 +143,25 @@ const filteredLaptops = computed(() => {
       .includes(query),
   )
 })
-const loadLaptops = async () => {
+const loadLaptops = async (page = 1) => {
   loading.value = true
   try {
-    laptops.value = await getLaptops(filterBrandId.value ?? undefined)
+    const response = await getLaptopsPage(page, filterBrandId.value ?? undefined)
+    laptops.value = response.data
+    pagination.value = {
+      current_page: response.current_page,
+      last_page: response.last_page,
+      total: response.total,
+      from: response.from,
+      to: response.to,
+    }
   } finally {
     loading.value = false
   }
 }
 const load = async () => {
-  loading.value = true
-  try {
-    brands.value = await getLaptopBrands()
-    laptops.value = await getLaptops(filterBrandId.value ?? undefined)
-  } finally {
-    loading.value = false
-  }
+  brands.value = await getLaptopBrands()
+  await loadLaptops(1)
 }
 const startCreate = () => {
   editing.value = null
