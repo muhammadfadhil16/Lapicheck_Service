@@ -1530,17 +1530,20 @@ const handleExportPDF = async () => {
 }
 
 onMounted(async () => {
-  try {
-    aiAvailable.value = await getAiStatus()
-    form.use_ai = aiAvailable.value
-  } catch {
+  const [aiResult, brandsResult] = await Promise.allSettled([getAiStatus(), getLaptopBrands()])
+
+  if (aiResult.status === 'fulfilled') {
+    aiAvailable.value = aiResult.value
+    form.use_ai = aiResult.value
+  } else {
     aiAvailable.value = false
     form.use_ai = false
   }
 
-  try {
-    laptopBrands.value = await getLaptopBrands()
-  } catch (error) {
+  if (brandsResult.status === 'fulfilled') {
+    laptopBrands.value = brandsResult.value
+  } else {
+    const error = brandsResult.reason
     const apiError = error as ApiError
     console.error('Gagal memuat data perangkat:', apiError.message)
     await Swal.fire({

@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Laptop;
 use App\Models\LaptopBrand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class LaptopController extends Controller
 {
     public function brands()
     {
-        return response()->json(['data' => LaptopBrand::withCount('laptops')->orderBy('name')->get(['id', 'name'])]);
+        return response()->json(['data' => Cache::store('file')->remember('laptop_brands', now()->addMinutes(10), fn () => LaptopBrand::withCount('laptops')->orderBy('name')->get(['id', 'name']))]);
     }
 
     public function storeBrand(Request $request)
@@ -34,6 +35,8 @@ class LaptopController extends Controller
             $brand = LaptopBrand::create(['name' => $name]);
         }
 
+        Cache::store('file')->forget('laptop_brands');
+
         return response()->json(['status' => 'success', 'data' => $brand->loadCount('laptops')], 201);
     }
 
@@ -41,6 +44,7 @@ class LaptopController extends Controller
     {
         $data = $request->validate(['name' => 'required|string|max:255|unique:laptop_brands,name,' . $brand->id]);
         $brand->update(['name' => trim($data['name'])]);
+        Cache::store('file')->forget('laptop_brands');
 
         return response()->json(['status' => 'success', 'data' => $brand->loadCount('laptops')]);
     }
@@ -52,6 +56,7 @@ class LaptopController extends Controller
         }
 
         $brand->delete();
+        Cache::store('file')->forget('laptop_brands');
 
         return response()->json(['status' => 'success', 'message' => 'Brand berhasil diarsipkan.']);
     }
