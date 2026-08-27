@@ -110,13 +110,13 @@ const load = async (page = 1) => {
   loading.value = true
   try {
     const response = await getLaptopBrandsPage(page)
-    brands.value = response.data
+    brands.value = Array.isArray(response.data) ? response.data : []
     pagination.value = {
-      current_page: response.current_page,
-      last_page: response.last_page,
-      total: response.total,
-      from: response.from,
-      to: response.to,
+      current_page: response.current_page ?? 1,
+      last_page: response.last_page ?? 1,
+      total: response.total ?? 0,
+      from: response.from ?? 0,
+      to: response.to ?? 0,
     }
   } finally {
     loading.value = false
