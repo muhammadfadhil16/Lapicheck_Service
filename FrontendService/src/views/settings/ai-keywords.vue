@@ -16,7 +16,15 @@
       <p class="mt-sm text-caption text-on-surface-variant">
         Pilih model yang tersedia pada API key Google AI Studio. API key tetap aman di server.
       </p>
+      <div
+        v-if="loadingSettings"
+        class="mt-md flex items-center gap-sm text-caption text-on-surface-variant"
+      >
+        <span class="material-symbols-outlined animate-spin text-[20px] text-primary">sync</span
+        >Memuat model AI...
+      </div>
       <select
+        v-else
         v-model="selectedModel"
         class="mt-md w-full rounded-xl border border-outline-variant/50 bg-surface-container px-md py-md text-body-md text-on-surface focus:border-primary focus:outline-none"
         :disabled="!models.length || savingModel || testingConnection"
@@ -29,10 +37,13 @@
       </select>
       <button
         type="button"
-        class="mt-md rounded-xl border border-primary px-lg py-sm font-label-bold text-label-bold text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        class="mt-md inline-flex items-center justify-center gap-sm rounded-xl border border-primary px-lg py-sm font-label-bold text-label-bold text-primary disabled:cursor-not-allowed disabled:opacity-50"
         :disabled="!selectedModel || testingConnection"
         @click="testConnection"
       >
+        <span v-if="testingConnection" class="material-symbols-outlined animate-spin text-[18px]"
+          >sync</span
+        >
         {{ testingConnection ? 'Menguji koneksi...' : 'Tes koneksi' }}
       </button>
       <p
@@ -56,9 +67,12 @@
         />
         <button
           type="submit"
-          class="rounded-xl bg-primary px-lg py-md font-label-bold text-label-bold text-on-primary disabled:opacity-50"
+          class="inline-flex items-center justify-center gap-sm rounded-xl bg-primary px-lg py-md font-label-bold text-label-bold text-on-primary disabled:opacity-50"
           :disabled="!newKeyword.trim() || loading"
         >
+          <span v-if="loading" class="material-symbols-outlined animate-spin text-[18px]"
+            >sync</span
+          >
           {{ loading ? 'Menyimpan...' : 'Tambah kosakata' }}
         </button>
       </form>
@@ -74,10 +88,17 @@
           >{{ keywords.length }} kata</span
         >
       </div>
-      <p v-if="!keywords.length" class="mt-lg text-body-md text-on-surface-variant">
+      <p
+        v-if="!loadingSettings && !keywords.length"
+        class="mt-lg text-body-md text-on-surface-variant"
+      >
         Belum ada kosakata tambahan.
       </p>
-      <div v-else class="mt-lg flex flex-wrap gap-sm">
+      <div v-if="loadingSettings" class="mt-lg flex items-center gap-sm text-on-surface-variant">
+        <span class="material-symbols-outlined animate-spin text-[22px] text-primary">sync</span
+        >Memuat pengaturan...
+      </div>
+      <div v-else-if="keywords.length" class="mt-lg flex flex-wrap gap-sm">
         <span
           v-for="keyword in keywords"
           :key="keyword"
@@ -119,12 +140,17 @@ const testingConnection = ref(false)
 const keywords = ref<string[]>([])
 const newKeyword = ref('')
 const loading = ref(false)
+const loadingSettings = ref(true)
 
 const loadSettings = async () => {
-  const response = await getAiModels()
-  models.value = response.models
-  selectedModel.value = response.selected
-  keywords.value = await getAiKeywords()
+  try {
+    const response = await getAiModels()
+    models.value = response.models
+    selectedModel.value = response.selected
+    keywords.value = await getAiKeywords()
+  } finally {
+    loadingSettings.value = false
+  }
 }
 
 const saveModel = async () => {

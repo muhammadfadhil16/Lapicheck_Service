@@ -9,10 +9,25 @@
         Tambah Brand
       </button>
     </div>
-    <Modal :open="formOpen" :title="editing ? 'Edit Brand' : 'Tambah Brand'" @close="formOpen = false">
+    <Modal
+      :open="formOpen"
+      :title="editing ? 'Edit Brand' : 'Tambah Brand'"
+      @close="formOpen = false"
+    >
       <form class="flex flex-col gap-md sm:flex-row" @submit.prevent="save">
-        <input v-model="name" required class="field-input min-w-0 flex-1" placeholder="Nama brand" />
-        <button class="rounded-full bg-primary px-lg py-md font-bold text-white">{{ editing ? 'Simpan Perubahan' : 'Simpan' }}</button>
+        <input
+          v-model="name"
+          required
+          class="field-input min-w-0 flex-1"
+          placeholder="Nama brand"
+        />
+        <button
+          :disabled="saving"
+          class="inline-flex items-center justify-center gap-sm rounded-full bg-primary px-lg py-md font-bold text-white disabled:opacity-50"
+        >
+          <span v-if="saving" class="material-symbols-outlined animate-spin text-[18px]">sync</span
+          >{{ saving ? 'Menyimpan...' : editing ? 'Simpan Perubahan' : 'Simpan' }}
+        </button>
       </form>
     </Modal>
     <div class="flex items-center gap-md rounded-2xl bg-surface p-md shadow-sm">
@@ -25,7 +40,14 @@
       />
     </div>
     <div class="table-shell">
-      <table class="min-w-[560px]">
+      <div
+        v-if="loading"
+        class="flex min-h-[320px] flex-col items-center justify-center gap-md p-xl"
+      >
+        <span class="material-symbols-outlined animate-spin text-[48px] text-primary">sync</span>
+        <p class="font-label-bold text-outline">Memuat data brand...</p>
+      </div>
+      <table v-else class="min-w-[560px]">
         <thead>
           <tr>
             <th>Nama Brand</th>
@@ -73,6 +95,8 @@ const searchQuery = ref('')
 const formOpen = ref(false)
 const editing = ref<LaptopBrand | null>(null)
 const name = ref('')
+const loading = ref(true)
+const saving = ref(false)
 const filteredBrands = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
   return query
@@ -80,7 +104,12 @@ const filteredBrands = computed(() => {
     : brands.value
 })
 const load = async () => {
-  brands.value = await getLaptopBrands()
+  loading.value = true
+  try {
+    brands.value = await getLaptopBrands()
+  } finally {
+    loading.value = false
+  }
 }
 const openCreate = () => {
   editing.value = null
@@ -93,6 +122,7 @@ const edit = (brand: LaptopBrand) => {
   formOpen.value = true
 }
 const save = async () => {
+  saving.value = true
   try {
     const brand = editing.value
       ? await updateLaptopBrand(editing.value.id, name.value.trim())
@@ -114,6 +144,8 @@ const save = async () => {
       text: (error as ApiError).message,
       icon: 'error',
     })
+  } finally {
+    saving.value = false
   }
 }
 const remove = async (brand: LaptopBrand) => {

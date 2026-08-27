@@ -9,16 +9,35 @@
         Tambah Data Laptop
       </button>
     </div>
-    <Modal :open="showForm" :title="editing ? 'Edit Data Laptop' : 'Tambah Data Laptop'" @close="showForm = false">
+    <Modal
+      :open="showForm"
+      :title="editing ? 'Edit Data Laptop' : 'Tambah Data Laptop'"
+      @close="showForm = false"
+    >
       <form class="grid gap-md md:grid-cols-2" @submit.prevent="save">
         <select v-model="form.brand_name" required class="field-input">
           <option value="">Pilih brand</option>
-          <option v-for="brand in brands" :key="brand.id" :value="brand.name">{{ brand.name }}</option>
+          <option v-for="brand in brands" :key="brand.id" :value="brand.name">
+            {{ brand.name }}
+          </option>
         </select>
         <input v-model="form.model_name" required class="field-input" placeholder="Model laptop" />
         <input v-model="form.processor_name" required class="field-input" placeholder="Processor" />
-        <input v-model.number="form.benchmark_score" required min="0" type="number" class="field-input" placeholder="Benchmark" />
-        <button class="rounded-full bg-primary px-xl py-md font-bold text-white md:col-span-2">Simpan</button>
+        <input
+          v-model.number="form.benchmark_score"
+          required
+          min="0"
+          type="number"
+          class="field-input"
+          placeholder="Benchmark"
+        />
+        <button
+          :disabled="saving"
+          class="inline-flex items-center justify-center gap-sm rounded-full bg-primary px-xl py-md font-bold text-white disabled:opacity-50 md:col-span-2"
+        >
+          <span v-if="saving" class="material-symbols-outlined animate-spin text-[18px]">sync</span
+          >{{ saving ? 'Menyimpan...' : 'Simpan' }}
+        </button>
       </form>
     </Modal>
     <div
@@ -42,7 +61,14 @@
       />
     </div>
     <div class="table-shell">
-      <table class="min-w-[900px]">
+      <div
+        v-if="loading"
+        class="flex min-h-[320px] flex-col items-center justify-center gap-md p-xl"
+      >
+        <span class="material-symbols-outlined animate-spin text-[48px] text-primary">sync</span>
+        <p class="font-label-bold text-outline">Memuat data laptop...</p>
+      </div>
+      <table v-else class="min-w-[900px]">
         <thead>
           <tr>
             <th>Brand</th>
@@ -99,6 +125,8 @@ const filterBrandId = ref<number | null>(null)
 const searchQuery = ref('')
 const showForm = ref(false)
 const editing = ref<Laptop | null>(null)
+const loading = ref(true)
+const saving = ref(false)
 const form = reactive({ brand_name: '', model_name: '', processor_name: '', benchmark_score: 0 })
 const filteredLaptops = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
@@ -110,11 +138,21 @@ const filteredLaptops = computed(() => {
   )
 })
 const loadLaptops = async () => {
-  laptops.value = await getLaptops(filterBrandId.value ?? undefined)
+  loading.value = true
+  try {
+    laptops.value = await getLaptops(filterBrandId.value ?? undefined)
+  } finally {
+    loading.value = false
+  }
 }
 const load = async () => {
-  brands.value = await getLaptopBrands()
-  await loadLaptops()
+  loading.value = true
+  try {
+    brands.value = await getLaptopBrands()
+    laptops.value = await getLaptops(filterBrandId.value ?? undefined)
+  } finally {
+    loading.value = false
+  }
 }
 const startCreate = () => {
   editing.value = null
@@ -134,23 +172,28 @@ const startEdit = (laptop: Laptop) => {
 const save = async () => {
   const brand = brands.value.find((item) => item.name === form.brand_name)
   if (!brand) return
-  if (editing.value)
-    await updateLaptop(editing.value.id, {
-      brand_id: brand.id,
-      model_name: form.model_name,
-      processor_name: form.processor_name,
-      benchmark_score: form.benchmark_score,
+  saving.value = true
+  try {
+    if (editing.value)
+      await updateLaptop(editing.value.id, {
+        brand_id: brand.id,
+        model_name: form.model_name,
+        processor_name: form.processor_name,
+        benchmark_score: form.benchmark_score,
+      })
+    else await createLaptop(form)
+    await loadLaptops()
+    showForm.value = false
+    await Swal.fire({
+      title: 'Berhasil',
+      text: 'Data laptop tersimpan.',
+      icon: 'success',
+      timer: 1400,
+      showConfirmButton: false,
     })
-  else await createLaptop(form)
-  await loadLaptops()
-  showForm.value = false
-  await Swal.fire({
-    title: 'Berhasil',
-    text: 'Data laptop tersimpan.',
-    icon: 'success',
-    timer: 1400,
-    showConfirmButton: false,
-  })
+  } finally {
+    saving.value = false
+  }
 }
 const remove = async (laptop: Laptop) => {
   const result = await Swal.fire({
