@@ -97,13 +97,17 @@ class AiSettingController extends Controller
 
     private function setting(): AiSetting
     {
-        return AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-2.5-flash')]);
+        $setting = AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-2.5-flash')]);
+        if (empty($setting->model)) {
+            $setting->update(['model' => 'gemini-2.5-flash']);
+        }
+        return $setting;
     }
 
     private function selectedModel(): string
     {
         try {
-            return $this->setting()->model;
+            return $this->setting()->model ?: 'gemini-2.5-flash';
         } catch (\Throwable) {
             return config('services.gemini.model', 'gemini-2.5-flash');
         }
@@ -144,64 +148,11 @@ class AiSettingController extends Controller
             return [];
         }
 
-        $response = Http::timeout(10)->get('https://generativelanguage.googleapis.com/v1beta/models', [
-            'key' => config('services.gemini.key'),
-        ]);
-
-        if ($response->failed()) {
-            return [];
-        }
-
-        $models = collect($response->json('models', []))
-            ->filter(fn ($model) => in_array('generateContent', $model['supportedGenerationMethods'] ?? [], true))
-            ->map(fn ($model) => [
-                'id'   => Str::after($model['name'] ?? '', 'models/'),
-                'name' => $model['displayName'] ?? Str::after($model['name'] ?? '', 'models/'),
-            ])
-            ->filter(fn ($model) => filled($model['id']))
-            ->values();
-
-        $this->warmHealthCache($models->pluck('id')->all());
-
-        return $models
-            ->filter(fn ($model) => $this->isHealthy($model['id']))
-            ->values()
-            ->all();
-    }
-
-    /**
-     * Pre-warm the health cache for all given model IDs using parallel HTTP requests.
-     * Only uncached models are checked, so subsequent calls within 5 minutes are instant.
-     */
-    private function warmHealthCache(array $modelIds): void
-    {
-        $uncached = array_values(array_filter(
-            $modelIds,
-            fn ($id) => !Cache::has($this->healthCacheKey($id))
-        ));
-
-        if (empty($uncached)) {
-            return;
-        }
-
-        $key = config('services.gemini.key');
-
-        $responses = Http::pool(function (Pool $pool) use ($uncached, $key) {
-            return array_map(
-                fn ($id) => $pool->as($id)->timeout(10)->post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/{$id}:generateContent?key={$key}",
-                    [
-                        'contents'         => [['parts' => [['text' => 'Balas dengan kata OK.']]]],
-                        'generationConfig' => ['maxOutputTokens' => 5],
-                    ]
-                ),
-                $uncached
-            );
-        });
-
-        foreach ($uncached as $id) {
-            $healthy = isset($responses[$id]) && $responses[$id]->successful();
-            Cache::put($this->healthCacheKey($id), $healthy, now()->addMinutes(5));
-        }
+        return [
+            ['id' => 'gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
+            ['id' => 'gemini-2.0-flash', 'name' => 'Gemini 2.0 Flash'],
+            ['id' => 'gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
+            ['id' => 'gemini-3.6-flash', 'name' => 'Gemini 3.6 Flash'],
+        ];
     }
 }

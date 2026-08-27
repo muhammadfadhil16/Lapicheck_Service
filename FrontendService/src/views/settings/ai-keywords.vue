@@ -32,7 +32,7 @@
       >
         <option v-if="!models.length" value="">Tidak ada model yang tersedia</option>
         <option v-for="model in models" :key="model.id" :value="model.id">
-          {{ model.name }} ({{ model.id }})
+          {{ model.name }}
         </option>
       </select>
       <button
@@ -144,10 +144,16 @@ const loadingSettings = ref(true)
 
 const loadSettings = async () => {
   try {
-    const response = await getAiModels()
-    models.value = response.models
-    selectedModel.value = response.selected
-    keywords.value = await getAiKeywords()
+    const [modelsRes, keywordsRes] = await Promise.allSettled([getAiModels(), getAiKeywords()])
+
+    if (modelsRes.status === 'fulfilled') {
+      models.value = modelsRes.value.models
+      selectedModel.value = modelsRes.value.selected || 'gemini-2.5-flash'
+    }
+
+    if (keywordsRes.status === 'fulfilled') {
+      keywords.value = keywordsRes.value
+    }
   } finally {
     loadingSettings.value = false
   }
