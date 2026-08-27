@@ -147,13 +147,13 @@ const loadLaptops = async (page = 1) => {
   loading.value = true
   try {
     const response = await getLaptopsPage(page, filterBrandId.value ?? undefined)
-    laptops.value = response.data
+    laptops.value = Array.isArray(response.data) ? response.data : []
     pagination.value = {
-      current_page: response.current_page,
-      last_page: response.last_page,
-      total: response.total,
-      from: response.from,
-      to: response.to,
+      current_page: response.current_page ?? 1,
+      last_page: response.last_page ?? 1,
+      total: response.total ?? 0,
+      from: response.from ?? 0,
+      to: response.to ?? 0,
     }
   } finally {
     loading.value = false

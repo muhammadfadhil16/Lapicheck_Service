@@ -124,7 +124,8 @@ export const evaluationService = () => {
 
   const getLaptopBrands = async (): Promise<LaptopBrand[]> => {
     const response = await api.get('/api/laptop-brands', { params: { per_page: 100 } })
-    return response.data.data || response.data
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
   }
 
   const getLaptopBrandsPage = async (page: number): Promise<PaginatedResponse<LaptopBrand>> => {
@@ -150,7 +151,8 @@ export const evaluationService = () => {
     const response = await api.get('/api/laptops', {
       params: { per_page: 100, ...(brandId ? { brand_id: brandId } : {}) },
     })
-    return response.data.data || response.data
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
   }
 
   const getLaptopsPage = async (

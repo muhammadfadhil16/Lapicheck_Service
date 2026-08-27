@@ -147,12 +147,12 @@ const loadSettings = async () => {
     const [modelsRes, keywordsRes] = await Promise.allSettled([getAiModels(), getAiKeywords()])
 
     if (modelsRes.status === 'fulfilled') {
-      models.value = modelsRes.value.models
+      models.value = Array.isArray(modelsRes.value.models) ? modelsRes.value.models : []
       selectedModel.value = modelsRes.value.selected || 'gemini-2.5-flash'
     }
 
     if (keywordsRes.status === 'fulfilled') {
-      keywords.value = keywordsRes.value
+      keywords.value = Array.isArray(keywordsRes.value) ? keywordsRes.value : []
     }
   } finally {
     loadingSettings.value = false

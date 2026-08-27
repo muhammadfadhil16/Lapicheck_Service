@@ -527,13 +527,13 @@ const fetchHistory = async (page = 1) => {
     if (startDate.value) filters.start_date = startDate.value
     if (endDate.value) filters.end_date = endDate.value
     const response = (await getAllAssessments(page, filters)) as AssessmentHistoryResponse
-    historyData.value = response.data
+    historyData.value = Array.isArray(response.data) ? response.data : []
     pagination.value = {
-      current_page: response.current_page,
-      last_page: response.last_page,
-      total: response.total,
-      from: response.from,
-      to: response.to,
+      current_page: response.current_page ?? 1,
+      last_page: response.last_page ?? 1,
+      total: response.total ?? 0,
+      from: response.from ?? 0,
+      to: response.to ?? 0,
     }
   } catch (error) {
     const apiError = error as ApiError
