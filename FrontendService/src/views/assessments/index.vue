@@ -12,11 +12,28 @@
         <div
           class="bg-surface border border-outline-variant/30 shadow-[0_8px_40px_rgba(0,0,0,0.03)] p-xl rounded-[24px]"
         >
-          <h3 class="font-h3 text-h3 text-primary border-b border-outline-variant/50 pb-md mb-xl">
-            Parameter Komponen
-          </h3>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/50 pb-md mb-xl gap-4">
+            <h3 class="font-h3 text-h3 text-primary">
+              Parameter Komponen
+            </h3>
+            <!-- Step Indicator -->
+            <div class="flex items-center gap-xs sm:gap-sm">
+              <div v-for="step in 4" :key="step" class="flex items-center">
+                <div 
+                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-label-bold text-xs sm:text-sm transition-all"
+                  :class="currentStep === step ? 'bg-primary text-white shadow-md' : currentStep > step ? 'bg-primary/20 text-primary' : 'bg-surface-variant text-on-surface-variant'"
+                >
+                  <span v-if="currentStep > step" class="material-symbols-outlined text-[14px] sm:text-[16px]">check</span>
+                  <span v-else>{{ step }}</span>
+                </div>
+                <div v-if="step < 4" class="w-6 sm:w-10 h-1 mx-1 sm:mx-2 rounded-full transition-all" :class="currentStep > step ? 'bg-primary/30' : 'bg-surface-variant'"></div>
+              </div>
+            </div>
+          </div>
           <form class="space-y-xl" @submit.prevent="handleEstimation">
-            <div class="flex flex-col gap-sm border-b border-outline-variant/50 pb-xl">
+            <!-- STEP 1: Data Dasar -->
+            <div v-show="currentStep === 1" class="space-y-xl animate-fade-in">
+              <div class="flex flex-col gap-sm border-b border-outline-variant/50 pb-xl">
               <label
                 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
                 for="laptop-name"
@@ -87,19 +104,23 @@
               </p>
             </div>
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
-            >
-              <div class="flex flex-col gap-sm">
-                <div class="flex justify-between items-center">
-                  <label
-                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                  >
-                    <span
-                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
-                      >monitor</span
+            </div>
+            
+            <!-- STEP 2: Kondisi Fisik -->
+            <div v-show="currentStep === 2" class="space-y-xl animate-fade-in">
+              <div
+                class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
+              >
+                <div class="flex flex-col gap-sm">
+                  <div class="flex justify-between items-center">
+                    <label
+                      class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
                     >
-                    Kondisi Fisik LCD
+                      <span
+                        class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                        >monitor</span
+                      >
+                      Kondisi Fisik LCD
                   </label>
                   <span
                     class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
@@ -168,6 +189,7 @@
                     max="100"
                     step="1"
                     class="w-full h-2 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
+                    :style="batterySliderStyle"
                     :class="
                       formErrors.battery_health
                         ? 'bg-error/30 accent-error'
@@ -206,15 +228,74 @@
                 </div>
               </div>
             </div>
-
             <div
               class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
             >
               <div class="flex flex-col gap-sm">
-                <label
-                  class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                  for="ram-select"
+                <div class="flex justify-between items-center">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                      >keyboard</span
+                    >
+                    Fungsi Keyboard
+                  </label>
+                  <span
+                    class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
+                  >
+                    {{ getSelectedOptionTitle(form.keyboard_score, keyboardOptions) }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
+                  <button
+                    v-for="option in keyboardOptions"
+                    :key="option.value"
+                    type="button"
+                    class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
+                    :class="
+                      form.keyboard_score === option.value
+                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                        : 'border-outline-variant/50 bg-surface-container text-on-surface'
+                    "
+                    @click="selectKeyboard(option)"
+                  >
+                    <span class="block font-label-bold text-label-bold">{{
+                      getOptionTitle(option)
+                    }}</span>
+                    <span class="mt-xs block text-caption text-on-surface-variant">{{
+                      getOptionDescription(option)
+                    }}</span>
+                  </button>
+                </div>
+                <p class="font-caption text-caption text-on-surface-variant">
+                  Pilih berdasarkan hasil tes fungsional.
+                </p>
+                <p
+                  v-if="formErrors.keyboard_score"
+                  class="font-caption text-caption text-error flex items-center gap-1"
                 >
+                  <span class="material-symbols-outlined text-[14px]">error</span>
+                  {{ formErrors.keyboard_score }}
+                </p>
+              </div>
+
+
+
+            </div>
+            </div>
+
+            <!-- STEP 3: Spesifikasi & Harga -->
+            <div v-show="currentStep === 3" class="space-y-xl animate-fade-in">
+              <div
+                class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
+              >
+                <div class="flex flex-col gap-sm">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                    for="ram-select"
+                  >
                   <span
                     class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
                   >
@@ -309,59 +390,6 @@
                 </p>
               </div>
             </div>
-
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-xl border-b border-outline-variant/50 pb-xl"
-            >
-              <div class="flex flex-col gap-sm">
-                <div class="flex justify-between items-center">
-                  <label
-                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                  >
-                    <span
-                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
-                      >keyboard</span
-                    >
-                    Fungsi Keyboard
-                  </label>
-                  <span
-                    class="text-label-bold text-primary font-mono bg-primary/10 px-md py-xs rounded-full text-[14px]"
-                  >
-                    {{ getSelectedOptionTitle(form.keyboard_score, keyboardOptions) }}
-                  </span>
-                </div>
-                <div class="grid grid-cols-1 gap-sm sm:grid-cols-2">
-                  <button
-                    v-for="option in keyboardOptions"
-                    :key="option.value"
-                    type="button"
-                    class="rounded-2xl border p-md text-left transition-all hover:bg-surface-container-high"
-                    :class="
-                      form.keyboard_score === option.value
-                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
-                        : 'border-outline-variant/50 bg-surface-container text-on-surface'
-                    "
-                    @click="selectKeyboard(option)"
-                  >
-                    <span class="block font-label-bold text-label-bold">{{
-                      getOptionTitle(option)
-                    }}</span>
-                    <span class="mt-xs block text-caption text-on-surface-variant">{{
-                      getOptionDescription(option)
-                    }}</span>
-                  </button>
-                </div>
-                <p class="font-caption text-caption text-on-surface-variant">
-                  Pilih berdasarkan hasil tes fungsional.
-                </p>
-                <p
-                  v-if="formErrors.keyboard_score"
-                  class="font-caption text-caption text-error flex items-center gap-1"
-                >
-                  <span class="material-symbols-outlined text-[14px]">error</span>
-                  {{ formErrors.keyboard_score }}
-                </p>
-              </div>
 
               <div class="flex flex-col gap-sm">
                 <label
@@ -481,13 +509,15 @@
               </div>
             </div>
 
-            <div class="flex flex-col gap-sm border-b border-outline-variant/50 pb-xl">
-              <label
-                class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-              >
-                <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">
-                  photo_camera
-                </span>
+            <!-- STEP 4: Foto & Analisis AI -->
+            <div v-show="currentStep === 4" class="space-y-xl animate-fade-in">
+              <div class="flex flex-col gap-sm border-b border-outline-variant/50 pb-xl">
+                <label
+                  class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
+                >
+                  <span class="material-symbols-outlined text-[18px] text-primary align-middle mr-1">
+                    photo_camera
+                  </span>
                 Foto Laptop (Opsional, Maks. 3 Foto)
               </label>
               <div
@@ -601,8 +631,31 @@
               </button>
             </div>
 
-            <div class="pt-xl mt-xl border-t border-outline-variant/50 flex justify-end">
+            </div> <!-- End step 4 -->
+
+            <div class="pt-xl mt-xl border-t border-outline-variant/50 flex justify-between items-center">
               <button
+                v-if="currentStep > 1"
+                type="button"
+                class="px-lg py-md rounded-full font-label-bold text-label-bold border border-outline-variant/50 text-on-surface-variant hover:bg-surface-container transition-all"
+                @click="prevStep"
+              >
+                Kembali
+              </button>
+              <div v-else></div>
+
+              <button
+                v-if="currentStep < 4"
+                type="button"
+                class="bg-primary text-on-primary px-lg py-md rounded-full font-label-bold text-label-bold shadow-md hover:bg-primary-container transition-all flex items-center gap-sm"
+                @click="nextStep"
+              >
+                Selanjutnya
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </button>
+
+              <button
+                v-if="currentStep === 4"
                 class="bg-primary text-on-primary border border-transparent font-label-bold text-label-bold py-md px-[40px] rounded-full hover:bg-primary-container active:border-primary-fixed-dim shadow-[0_8px_20px_rgba(0,32,69,0.15)] hover:shadow-[0_12px_24px_rgba(0,32,69,0.2)] hover:-translate-y-0.5 transition-all flex items-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
                 :disabled="loading"
@@ -904,6 +957,26 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted, nextTick } from 'vue'
+
+const currentStep = ref(1)
+
+const nextStep = () => {
+  if (validateStep(currentStep.value)) {
+    currentStep.value++
+    scrollToTop()
+  }
+}
+
+const prevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--
+    scrollToTop()
+  }
+}
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 import {
   CURRENCY_OPTIONS,
   DEFAULT_CURRENCY,
@@ -1046,6 +1119,15 @@ const batteryRanges = [
   { range: '90-100%', label: 'Tinggi' },
 ]
 
+const batterySliderStyle = computed(() => {
+  const percentage = form.battery_health ?? 0
+  let color = '#002045' // primary
+  if (percentage <= 65) color = '#ba1a1a' // error
+  else if (percentage < 85) color = '#f2bc82' // warning-ish
+  return {
+    background: `linear-gradient(to right, ${color} 0%, ${color} ${percentage}%, #e3e2e6 ${percentage}%, #e3e2e6 100%)`
+  }
+})
 const getOptionTitle = (option: ScoreOption) => option.label.split(' — ')[0]
 
 const getOptionDescription = (option: ScoreOption) => option.label.split(' — ').slice(1).join(' — ')
@@ -1262,43 +1344,45 @@ const clearAllErrors = () => {
   })
 }
 
-const validateForm = (): boolean => {
+const validateStep = (step: number): boolean => {
   clearAllErrors()
   let isValid = true
 
-  if (form.laptop_id === null && !form.laptop_name.trim()) {
-    formErrors.laptop_name = 'Pilih model laptop atau ketik nama perangkat.'
-    isValid = false
+  if (step === 1 || step === 0) {
+    if (form.laptop_id === null && !form.laptop_name.trim()) {
+      formErrors.laptop_name = 'Pilih model laptop atau ketik nama perangkat.'
+      isValid = false
+    }
+    if (!form.customer_name.trim()) {
+      formErrors.customer_name = 'Nama customer wajib diisi.'
+      isValid = false
+    }
   }
-
-  if (!form.customer_name.trim()) {
-    formErrors.customer_name = 'Nama customer wajib diisi.'
-    isValid = false
+  
+  if (step === 2 || step === 0) {
+    if (form.lcd_score === null) {
+      formErrors.lcd_score = 'Kondisi LCD wajib ditentukan.'
+      isValid = false
+    }
+    if (form.battery_health === null) {
+      formErrors.battery_health = 'Kesehatan baterai wajib ditentukan.'
+      isValid = false
+    }
+    if (form.keyboard_score === null) {
+      formErrors.keyboard_score = 'Fungsi keyboard wajib ditentukan.'
+      isValid = false
+    }
   }
-
-  if (form.lcd_score === null) {
-    formErrors.lcd_score = 'Kondisi LCD wajib ditentukan.'
-    isValid = false
-  }
-
-  if (form.battery_health === null) {
-    formErrors.battery_health = 'Kesehatan baterai wajib ditentukan.'
-    isValid = false
-  }
-
-  if (form.ram_capacity === null) {
-    formErrors.ram_capacity = 'Kapasitas RAM wajib dipilih.'
-    isValid = false
-  }
-
-  if (form.keyboard_score === null) {
-    formErrors.keyboard_score = 'Fungsi keyboard wajib ditentukan.'
-    isValid = false
-  }
-
-  if (form.price === null || form.price <= 0) {
-    formErrors.price = 'Harga pasaran wajib diisi dengan nilai yang valid.'
-    isValid = false
+  
+  if (step === 3 || step === 0) {
+    if (form.ram_capacity === null) {
+      formErrors.ram_capacity = 'Kapasitas RAM wajib dipilih.'
+      isValid = false
+    }
+    if (form.price === null || form.price <= 0) {
+      formErrors.price = 'Harga pasaran wajib diisi dengan nilai yang valid.'
+      isValid = false
+    }
   }
 
   if (!isValid) {
@@ -1310,6 +1394,10 @@ const validateForm = (): boolean => {
   }
 
   return isValid
+}
+
+const validateForm = (): boolean => {
+  return validateStep(0)
 }
 
 const handleEstimation = async () => {

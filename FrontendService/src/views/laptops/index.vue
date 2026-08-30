@@ -68,42 +68,44 @@
         <span class="material-symbols-outlined animate-spin text-[48px] text-primary">sync</span>
         <p class="font-label-bold text-outline">Memuat data laptop...</p>
       </div>
-      <table v-else class="min-w-[900px]">
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Model Laptop</th>
-            <th>Processor</th>
-            <th>Benchmark</th>
-            <th class="text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="laptop in filteredLaptops"
-            :key="laptop.id"
-            class="border-b border-outline-variant/20 last:border-0"
-          >
-            <td class="font-bold text-primary">{{ laptop.brand.name }}</td>
-            <td>{{ laptop.model_name }}</td>
-            <td class="text-on-surface-variant">{{ laptop.processor_name }}</td>
-            <td>
-              <span class="rounded-full bg-primary/10 px-sm py-xs font-bold text-primary">{{
-                laptop.benchmark_score
-              }}</span>
-            </td>
-            <td>
-              <div class="flex justify-center gap-md">
-                <button class="font-bold text-primary hover:underline" @click="startEdit(laptop)">
-                  Edit</button
-                ><button class="font-bold text-error hover:underline" @click="remove(laptop)">
-                  Hapus
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else class="overflow-x-auto w-full">
+        <table class="min-w-[900px] w-full">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Model Laptop</th>
+              <th>Processor</th>
+              <th>Benchmark</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="laptop in filteredLaptops"
+              :key="laptop.id"
+              class="border-b border-outline-variant/20 last:border-0"
+            >
+              <td class="font-bold text-primary">{{ laptop.brand.name }}</td>
+              <td>{{ laptop.model_name }}</td>
+              <td class="text-on-surface-variant">{{ laptop.processor_name }}</td>
+              <td>
+                <span class="rounded-full bg-primary/10 px-sm py-xs font-bold text-primary">{{
+                  laptop.benchmark_score
+                }}</span>
+              </td>
+              <td>
+                <div class="flex justify-center gap-md">
+                  <button class="font-bold text-primary hover:underline" @click="startEdit(laptop)">
+                    Edit</button
+                  ><button class="font-bold text-error hover:underline" @click="remove(laptop)">
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <p
         v-if="!loading && !filteredLaptops.length"
         class="p-xl text-center text-on-surface-variant"
@@ -115,7 +117,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
 import type { Laptop, LaptopBrand } from '@/constants/assessment'
 import { evaluationService } from '@/services/evaluation'
@@ -134,26 +136,27 @@ const loading = ref(true)
 const saving = ref(false)
 const pagination = ref({ current_page: 1, last_page: 1, total: 0, from: 0, to: 0 })
 const form = reactive({ brand_name: '', model_name: '', processor_name: '', benchmark_score: 0 })
-const filteredLaptops = computed(() => {
-  const query = searchQuery.value.toLowerCase().trim()
-  if (!query) return laptops.value
-  return laptops.value.filter((laptop) =>
-    `${laptop.brand.name} ${laptop.model_name} ${laptop.processor_name} ${laptop.benchmark_score} ${laptop.category}`
-      .toLowerCase()
-      .includes(query),
-  )
+const filteredLaptops = computed(() => laptops.value)
+
+let searchTimeout: ReturnType<typeof setTimeout>
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    loadLaptops(1)
+  }, 300)
 })
+
 const loadLaptops = async (page = 1) => {
   loading.value = true
   try {
-    const response = await getLaptopsPage(page, filterBrandId.value ?? undefined)
-    laptops.value = response.data
+    const response = await getLaptopsPage(page, filterBrandId.value ?? undefined, searchQuery.value)
+    laptops.value = Array.isArray(response.data) ? response.data : []
     pagination.value = {
-      current_page: response.current_page,
-      last_page: response.last_page,
-      total: response.total,
-      from: response.from,
-      to: response.to,
+      current_page: response.current_page ?? 1,
+      last_page: response.last_page ?? 1,
+      total: response.total ?? 0,
+      from: response.from ?? 0,
+      to: response.to ?? 0,
     }
   } finally {
     loading.value = false

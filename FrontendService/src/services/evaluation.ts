@@ -156,9 +156,10 @@ export const evaluationService = () => {
   const getLaptopsPage = async (
     page: number,
     brandId?: number,
+    search?: string,
   ): Promise<PaginatedResponse<Laptop>> => {
     const response = await api.get('/api/laptops', {
-      params: { page, ...(brandId ? { brand_id: brandId } : {}) },
+      params: { page, ...(brandId ? { brand_id: brandId } : {}), ...(search ? { search } : {}) },
     })
     return response.data
   }

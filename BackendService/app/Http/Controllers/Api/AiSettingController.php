@@ -124,7 +124,13 @@ class AiSettingController extends Controller
             return false;
         }
 
-        return Cache::remember($this->healthCacheKey($model), now()->addMinutes(5), function () use ($model) {
+        $cacheKey = $this->healthCacheKey($model);
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
+        try {
             $response = Http::timeout(10)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . config('services.gemini.key'),
                 [
@@ -133,8 +139,19 @@ class AiSettingController extends Controller
                 ]
             );
 
-            return $response->successful();
-        });
+            $isSuccessful = $response->successful();
+
+            if ($isSuccessful) {
+                Cache::put($cacheKey, true, now()->addMinutes(5));
+            } else {
+                Cache::put($cacheKey, false, now()->addSeconds(30));
+            }
+
+            return $isSuccessful;
+        } catch (\Exception $e) {
+            Cache::put($cacheKey, false, now()->addSeconds(30));
+            return false;
+        }
     }
 
     private function healthCacheKey(string $model): string
