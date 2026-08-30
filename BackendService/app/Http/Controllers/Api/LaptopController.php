@@ -60,6 +60,16 @@ class LaptopController extends Controller
         if ($request->filled('brand_id')) {
             $query->where('brand_id', $request->integer('brand_id'));
         }
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(model_name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(processor_name) LIKE ?', ["%{$search}%"])
+                  ->orWhereHas('brand', function ($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+                  });
+            });
+        }
 
         return response()->json($query->paginate(min($request->integer('per_page', 10), 100), ['id', 'brand_id', 'model_name', 'processor_name', 'benchmark_score', 'category']));
     }
