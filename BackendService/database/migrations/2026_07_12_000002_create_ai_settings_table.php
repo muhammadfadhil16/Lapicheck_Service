@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('ai_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('model')->default('gemini-2.5-flash');
+            $table->string('model')->default('gemini-3.6-flash');
             $table->timestamps();
         });
     }

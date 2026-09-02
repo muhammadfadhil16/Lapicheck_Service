@@ -148,7 +148,7 @@ const loadSettings = async () => {
 
     if (modelsRes.status === 'fulfilled') {
       models.value = Array.isArray(modelsRes.value.models) ? modelsRes.value.models : []
-      selectedModel.value = modelsRes.value.selected || 'gemini-2.5-flash'
+      selectedModel.value = modelsRes.value.selected || 'gemini-3.6-flash'
     }
 
     if (keywordsRes.status === 'fulfilled') {

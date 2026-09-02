@@ -9,6 +9,6 @@ class AiSettingSeeder extends Seeder
 {
     public function run(): void
     {
-        AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-2.5-flash')]);
+        AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-3.6-flash')]);
     }
 }

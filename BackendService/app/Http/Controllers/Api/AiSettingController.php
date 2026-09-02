@@ -97,9 +97,9 @@ class AiSettingController extends Controller
 
     private function setting(): AiSetting
     {
-        $setting = AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-2.5-flash')]);
+        $setting = AiSetting::firstOrCreate([], ['model' => config('services.gemini.model', 'gemini-3.6-flash')]);
         if (empty($setting->model)) {
-            $setting->update(['model' => 'gemini-2.5-flash']);
+            $setting->update(['model' => 'gemini-3.6-flash']);
         }
         return $setting;
     }
@@ -107,9 +107,9 @@ class AiSettingController extends Controller
     private function selectedModel(): string
     {
         try {
-            return $this->setting()->model ?: 'gemini-2.5-flash';
+            return $this->setting()->model ?: 'gemini-3.6-flash';
         } catch (\Throwable) {
-            return config('services.gemini.model', 'gemini-2.5-flash');
+            return config('services.gemini.model', 'gemini-3.6-flash');
         }
     }
 
@@ -166,10 +166,10 @@ class AiSettingController extends Controller
         }
 
         return [
-            ['id' => 'gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
-            ['id' => 'gemini-2.0-flash', 'name' => 'Gemini 2.0 Flash'],
-            ['id' => 'gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
             ['id' => 'gemini-3.6-flash', 'name' => 'Gemini 3.6 Flash'],
+            ['id' => 'gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
+            ['id' => 'gemini-3.5-flash-lite', 'name' => 'Gemini 3.5 Flash Lite'],
+            ['id' => 'gemini-flash-latest', 'name' => 'Gemini Flash Latest'],
         ];
     }
 }
