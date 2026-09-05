@@ -171,6 +171,9 @@ export const evaluationService = () => {
     model_name: string
     processor_name: string
     benchmark_score: number
+    market_price?: number
+    price_month?: number
+    price_year?: number
   }): Promise<Laptop> => {
     const response = await api.post('/api/laptops', data)
     return response.data.data
@@ -178,7 +181,15 @@ export const evaluationService = () => {
 
   const updateLaptop = async (
     id: number,
-    data: { brand_id: number; model_name: string; processor_name: string; benchmark_score: number },
+    data: {
+      brand_id: number
+      model_name: string
+      processor_name: string
+      benchmark_score: number
+      market_price?: number
+      price_month?: number
+      price_year?: number
+    },
   ): Promise<Laptop> => {
     const response = await api.put(`/api/laptops/${id}`, data)
     return response.data.data
@@ -186,6 +197,60 @@ export const evaluationService = () => {
 
   const deleteLaptop = async (id: number): Promise<void> => {
     await api.delete(`/api/laptops/${id}`)
+  }
+
+  const downloadLaptopTemplate = async (format: 'xlsx' | 'csv' = 'xlsx'): Promise<void> => {
+    const response = await api.get('/api/laptops/template', {
+      params: { format },
+      responseType: 'blob',
+    })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `template_import_laptop.${format}`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const exportLaptops = async (
+    format: 'xlsx' | 'csv' = 'xlsx',
+    brandId?: number,
+    search?: string,
+  ): Promise<void> => {
+    const response = await api.get('/api/laptops/export', {
+      params: { format, ...(brandId ? { brand_id: brandId } : {}), ...(search ? { search } : {}) },
+      responseType: 'blob',
+    })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `export_data_laptop.${format}`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const importLaptops = async (
+    file: File,
+  ): Promise<{
+    status: string
+    message: string
+    data: {
+      total_rows: number
+      imported_count: number
+      updated_count: number
+      errors: Array<{ row: number; message: string }>
+    }
+  }> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await api.post('/api/laptops/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
   }
 
   const evaluate = async (data: EvaluationInput): Promise<EvaluationData> => {
@@ -200,6 +265,9 @@ export const evaluationService = () => {
       formData.append('battery', String(data.battery_health))
       if (data.laptop_id) {
         formData.append('laptop_id', String(data.laptop_id))
+        if (data.processor_input !== undefined && data.processor_input !== null) {
+          formData.append('processor_input', String(data.processor_input))
+        }
       } else if (data.processor_id) {
         formData.append('processor_id', String(data.processor_id))
       } else if (data.processor_name) {
@@ -312,5 +380,8 @@ export const evaluationService = () => {
     createLaptop,
     updateLaptop,
     deleteLaptop,
+    downloadLaptopTemplate,
+    exportLaptops,
+    importLaptops,
   }
 }

@@ -70,9 +70,9 @@ routes/
 Master data laptop dipisahkan menjadi dua tabel:
 
 - `laptop_brands`: nama brand dan `deleted_at` untuk soft delete.
-- `laptops`: `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, dan `deleted_at`.
+- `laptops`: `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, `market_price`, `price_month`, `price_year`, `price_updated_at`, dan `deleted_at`.
 
-Processor bukan lagi master data terpisah. Processor dan benchmark melekat pada model laptop. Assessment memilih brand lalu model laptop; backend mengambil processor dan benchmark dari laptop terpilih. Model yang diarsipkan tidak muncul pada daftar aktif, tetapi tetap dapat dimuat dalam histori assessment.
+Processor bukan lagi master data terpisah. Processor, benchmark, dan harga pasar referensi melekat pada model laptop. Assessment memilih brand lalu model laptop; backend mengambil processor, benchmark, dan estimasi harga pasar referensi dari laptop terpilih. Model yang diarsipkan tidak muncul pada daftar aktif, tetapi tetap dapat dimuat dalam histori assessment.
 
 Endpoint master data:
 
@@ -82,10 +82,13 @@ Endpoint master data:
 | POST | `/api/laptop-brands` | Tambah brand atau pulihkan brand arsip dengan nama sama |
 | PUT | `/api/laptop-brands/{brand}` | Edit nama brand |
 | DELETE | `/api/laptop-brands/{brand}` | Arsipkan brand tanpa laptop aktif |
-| GET | `/api/laptops?brand_id=` | Daftar laptop aktif, dapat difilter brand |
-| POST | `/api/laptops` | Tambah model laptop |
-| PUT | `/api/laptops/{laptop}` | Edit model dan spesifikasi |
+| GET | `/api/laptops?brand_id=&search=` | Daftar laptop aktif (sorting periode harga terbaru) |
+| POST | `/api/laptops` | Tambah model laptop beserta harga pasar |
+| PUT | `/api/laptops/{laptop}` | Edit model, spesifikasi, dan harga pasar |
 | DELETE | `/api/laptops/{laptop}` | Soft delete model laptop |
+| GET | `/api/laptops/template?format=xlsx|csv` | Unduh template import spreadsheet |
+| GET | `/api/laptops/export?format=xlsx|csv` | Ekspor data laptop dan harga pasaran |
+| POST | `/api/laptops/import` | Batch import file spreadsheet (.xlsx/.xls/.csv) |
 
 ### 4.1 Tabel `assessments`
 
