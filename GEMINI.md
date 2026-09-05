@@ -34,10 +34,10 @@ This file is the Gemini Code entry point for this repo. It outlines the system a
 
 - Laptop master data is stored in `laptop_brands` and `laptops`.
 - `laptop_brands`: stores brand names and uses soft delete.
-- `laptops`: stores `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, and uses soft delete.
+- `laptops`: stores `brand_id`, `model_name`, `processor_name`, `benchmark_score`, `category`, `market_price`, `price_month`, `price_year`, `price_updated_at`, and uses soft delete.
 - The old `processors` table is no longer used by the application flow; processor data belongs to each laptop model.
 - `assessments` stores `laptop_id`, `laptop_name`, and `processor_input` as a historical snapshot. Assessment detail loads soft-deleted laptops with `withTrashed()` so history remains readable.
-- Assessment flow: select brand -> select laptop model -> processor and benchmark are filled from `laptops`.
+- Assessment flow: select brand -> select laptop model -> processor, benchmark, and default market price are filled from `laptops`.
 
 ## Current laptop APIs
 
@@ -47,10 +47,13 @@ This file is the Gemini Code entry point for this repo. It outlines the system a
 | POST | `/api/laptop-brands` | Create brand or restore archived brand with same name |
 | PUT | `/api/laptop-brands/{brand}` | Rename brand |
 | DELETE | `/api/laptop-brands/{brand}` | Soft delete brand if it has no active laptops |
-| GET | `/api/laptops?brand_id=` | List active laptop models, optionally filtered by brand |
-| POST | `/api/laptops` | Create laptop model with processor data |
-| PUT | `/api/laptops/{laptop}` | Update laptop model, brand, processor, and benchmark |
+| GET | `/api/laptops?brand_id=&search=` | List active laptop models ordered by latest price period |
+| POST | `/api/laptops` | Create laptop model with processor and market price |
+| PUT | `/api/laptops/{laptop}` | Update laptop model, brand, processor, benchmark, and market price |
 | DELETE | `/api/laptops/{laptop}` | Soft delete laptop model |
+| GET | `/api/laptops/template?format=xlsx|csv` | Download spreadsheet template for importing laptops |
+| GET | `/api/laptops/export?format=xlsx|csv` | Export laptop master data with market prices to spreadsheet |
+| POST | `/api/laptops/import` | Batch import laptop data from spreadsheet (.xlsx/.xls/.csv) |
 
 ## Code quality bar
 

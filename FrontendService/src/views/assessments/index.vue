@@ -57,7 +57,11 @@
                 @select="selectLaptop"
               />
               <p class="text-caption text-on-surface-variant">
-                Processor dan benchmark akan terisi otomatis.
+                Pilih brand & model laptop. Processor, skor benchmark, dan estimasi harga pasaran referensi akan terisi otomatis.
+              </p>
+              <p v-if="selectedLaptop && (!selectedLaptop.benchmark_score || selectedLaptop.benchmark_score <= 0)" class="text-caption text-amber-700 flex items-center gap-1 mt-1 font-medium bg-amber-50 dark:bg-amber-950/30 p-2 rounded-xl border border-amber-300/40">
+                <span class="material-symbols-outlined text-[16px] text-amber-600">info</span>
+                Model ini belum memiliki skor benchmark di database. Anda dapat menentukannya di Langkah 3 (Spesifikasi).
               </p>
               <RouterLink to="/laptops" class="text-left text-caption text-primary hover:underline"
                 >Kelola data laptop di menu Data Laptop</RouterLink
@@ -365,28 +369,77 @@
               </div>
 
               <div class="flex flex-col gap-sm">
-                <label
-                  class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
-                >
-                  <span
-                    class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                <div class="flex items-center justify-between">
+                  <label
+                    class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[13px]"
                   >
-                    speed
-                  </span>
-                  CPU / Processor
-                </label>
+                    <span
+                      class="material-symbols-outlined text-[18px] text-primary align-middle mr-1"
+                    >
+                      speed
+                    </span>
+                    CPU / Processor
+                  </label>
+                  <button
+                    v-if="selectedLaptop && selectedLaptop.benchmark_score > 0 && selectedLaptop.processor_name !== '-'"
+                    type="button"
+                    class="text-[12px] font-label-bold text-primary hover:underline"
+                    @click="showCustomProcessor = !showCustomProcessor"
+                  >
+                    {{ showCustomProcessor ? 'Gunakan master' : 'Sesuaikan manual' }}
+                  </button>
+                </div>
 
-                <div
-                  v-if="selectedLaptop"
-                  class="rounded-2xl border border-outline-variant/30 bg-surface-container p-md"
-                >
-                  <p class="font-medium text-on-surface">{{ selectedLaptop.processor_name }}</p>
-                  <p class="text-caption text-on-surface-variant">
-                    Benchmark {{ selectedLaptop.benchmark_score }} · {{ selectedLaptop.category }}
-                  </p>
+                <div v-if="selectedLaptop">
+                  <!-- Default master view -->
+                  <div
+                    v-if="!showCustomProcessor && selectedLaptop.benchmark_score > 0 && selectedLaptop.processor_name !== '-'"
+                    class="rounded-2xl border border-outline-variant/30 bg-surface-container p-md"
+                  >
+                    <p class="font-medium text-on-surface">{{ selectedLaptop.processor_name }}</p>
+                    <p class="text-caption text-on-surface-variant mt-0.5">
+                      Benchmark {{ selectedLaptop.benchmark_score }} · Kategori {{ selectedLaptop.category }}
+                    </p>
+                  </div>
+
+                  <!-- Custom / Missing benchmark editor -->
+                  <div v-else class="space-y-sm rounded-2xl border border-primary/30 bg-primary/[0.03] p-md">
+                    <div v-if="!selectedLaptop.benchmark_score || selectedLaptop.benchmark_score <= 0" class="flex items-start gap-xs text-[12px] text-amber-700 dark:text-amber-400">
+                      <span class="material-symbols-outlined text-[16px] text-amber-600 mt-0.5 shrink-0">warning</span>
+                      <span>Benchmark belum terdaftar. Masukkan nama processor dan skor benchmark manual:</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+                      <div>
+                        <label class="text-[11px] font-bold text-on-surface-variant">Nama Processor</label>
+                        <input
+                          v-model="form.processor_name"
+                          class="field-input w-full mt-1 text-sm bg-surface"
+                          placeholder="Contoh: Intel Core i5-1135G7"
+                        />
+                      </div>
+                      <div>
+                        <label class="text-[11px] font-bold text-on-surface-variant">Skor Benchmark</label>
+                        <input
+                          v-model.number="form.processor_input"
+                          type="number"
+                          min="0"
+                          class="field-input w-full mt-1 text-sm bg-surface"
+                          placeholder="Contoh: 9800"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-xs text-caption">
+                      <span class="text-on-surface-variant">Kategori:</span>
+                      <span class="rounded-full bg-primary/10 px-sm py-xs font-bold text-primary text-xs">
+                        {{ form.processor_input <= 7999 ? 'Rendah (<= 7.999)' : (form.processor_input <= 18000 ? 'Sedang (8.000 - 18.000)' : 'Tinggi (> 18.000)') }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <p v-else class="text-caption text-on-surface-variant">
-                  Pilih merk dan model laptop terlebih dahulu.
+                  Pilih merk dan model laptop terlebih dahulu pada Langkah 1.
                 </p>
               </div>
             </div>
@@ -904,31 +957,34 @@
           </div>
           <div class="space-y-lg font-body-md text-body-md text-on-surface-variant leading-relaxed">
             <p>
-              Sistem penilaian LapiCheck menggunakan
-              <strong class="text-primary font-semibold">Logika Fuzzy</strong> tingkat lanjut untuk
-              memproses parameter teknis yang Anda masukkan.
+              Sistem penilaian LapiCheck mengimplementasikan
+              <strong class="text-primary font-semibold">Logika Fuzzy Mamdani</strong> untuk
+              mengevaluasi degradasi multi-parameter komponen (LCD, Keyboard, RAM, Baterai, Processor) secara bertingkat.
             </p>
-            <p>
-              Tidak seperti penilaian biner tradisional (rusak/baik), logika fuzzy memungkinkan
-              sistem mengevaluasi degradasi komponen secara gradien. Misalnya, kesehatan baterai 72%
-              tidak dianggap sepenuhnya rusak, melainkan diproses sebagai "kondisi menengah-bawah"
-              yang mempengaruhi nilai akhir secara proporsional.
-            </p>
+            <div class="rounded-2xl bg-surface-container/60 p-md border border-outline-variant/30 space-y-xs">
+              <div class="flex items-center gap-xs font-label-bold text-xs text-primary">
+                <span class="material-symbols-outlined text-[16px]">verified_user</span>
+                Batasan & Keandalan Sistem
+              </div>
+              <p class="text-caption text-on-surface-variant leading-normal">
+                Sistem ini dirancang untuk <strong>meminimalisir subjektivitas dan bias manusia</strong> dalam evaluasi laptop bekas. Hasil penilaian dan estimasi harga berfungsi sebagai <strong>rekomendasi pendukung keputusan</strong> teknisi/toko, bukan penentu harga mutlak 100% karena dipengaruhi oleh dinamika pasar lokal dan kesepakatan transaksi.
+              </p>
+            </div>
             <ul
               class="bg-surface-container/30 p-md rounded-2xl border border-outline-variant/20 space-y-md mt-lg"
             >
               <li class="flex items-start gap-md">
                 <span class="material-symbols-outlined text-[20px] text-primary">check_circle</span>
-                <span class="pt-0.5">Estimasi lebih presisi sesuai kondisi nyata pasar.</span>
+                <span class="pt-0.5">Evaluasi degradasi komponen teknis secara proporsional.</span>
               </li>
               <li class="flex items-start gap-md">
                 <span class="material-symbols-outlined text-[20px] text-primary">check_circle</span>
-                <span class="pt-0.5">Mengurangi subjektivitas dalam penentuan harga.</span>
+                <span class="pt-0.5">Menstandarkan acuan kelayakan teknis sebelum unit diperjualbelikan.</span>
               </li>
               <li class="flex items-start gap-md">
                 <span class="material-symbols-outlined text-[20px] text-primary">check_circle</span>
                 <span class="pt-0.5"
-                  >Bobot nilai dihitung berdasarkan matriks prioritas komponen.</span
+                  >Depresiasi harga dihitung objektif dari skor akhir kondisi fisik.</span
                 >
               </li>
             </ul>
@@ -1056,6 +1112,7 @@ const selectedCurrencyCode = ref('IDR')
 const ramSearch = ref('')
 const currencyQuery = ref('')
 const openDropdown = ref<'ram' | 'processor' | 'currency' | null>(null)
+const showCustomProcessor = ref(false)
 
 const laptopBrands = ref<LaptopBrand[]>([])
 const brandLaptops = ref<Laptop[]>([])
@@ -1068,7 +1125,11 @@ const laptopOptions = computed(() =>
   brandLaptops.value.map((laptop) => ({
     value: laptop.id,
     label: laptop.model_name,
-    description: `${laptop.processor_name} · Benchmark ${laptop.benchmark_score}`,
+    description: `${laptop.processor_name} · Benchmark ${laptop.benchmark_score}${
+      laptop.market_price && laptop.market_price > 0
+        ? ` · Ref: Rp ${laptop.market_price.toLocaleString('id-ID')}`
+        : ''
+    }`,
   })),
 )
 
@@ -1162,7 +1223,20 @@ const handleRamInput = () => {
 const selectLaptop = () => {
   if (!selectedLaptop.value) return
   form.laptop_name = `${selectedLaptop.value.brand.name} ${selectedLaptop.value.model_name}`
+  form.processor_name = selectedLaptop.value.processor_name || ''
+  form.processor_input = selectedLaptop.value.benchmark_score || 0
+  showCustomProcessor.value =
+    !selectedLaptop.value.benchmark_score ||
+    selectedLaptop.value.benchmark_score <= 0 ||
+    selectedLaptop.value.processor_name === '-'
   clearFieldError('laptop_name')
+
+  // Auto-populate market price from laptop model reference if available
+  if (selectedLaptop.value.market_price && selectedLaptop.value.market_price > 0) {
+    form.price = selectedLaptop.value.market_price
+    syncMarketPriceDisplay()
+    clearFieldError('price')
+  }
 }
 
 const getBatteryGuidance = (score: number | null) => {
@@ -1414,6 +1488,7 @@ const handleEstimation = async () => {
       ram_capacity: form.ram_capacity!,
       battery_health: form.battery_health!,
       laptop_id: form.laptop_id!,
+      processor_input: form.processor_input || undefined,
       images: form.images.length > 0 ? form.images : undefined,
       description: form.description || undefined,
       use_ai: form.use_ai,

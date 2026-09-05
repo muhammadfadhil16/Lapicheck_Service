@@ -27,6 +27,10 @@ export type Laptop = {
   processor_name: string
   benchmark_score: number
   category: string
+  market_price?: number
+  price_month?: number
+  price_year?: number
+  price_updated_at?: string
   brand: LaptopBrand
 }
 

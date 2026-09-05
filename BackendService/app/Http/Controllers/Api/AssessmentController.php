@@ -68,6 +68,7 @@ class AssessmentController extends Controller
 
             'keyboard'       => 'required|integer|between:0,100',
             'ram'            => 'required|numeric|min:0',
+            'processor_input'=> 'nullable|numeric|min:0',
             'market_price'   => 'required|integer|min:0',
             'description'    => 'nullable|string',
             'use_ai'         => 'nullable|boolean',
@@ -99,10 +100,14 @@ class AssessmentController extends Controller
         try {
             $laptop = Laptop::with('brand')->findOrFail($request->laptop_id);
 
+            $processorBenchmark = $request->filled('processor_input') && (float) $request->processor_input > 0
+                ? (float) $request->processor_input
+                : (float) ($laptop->benchmark_score ?: 0);
+
             $input = [
                 'LCD'              => $request->lcd,
                 'KesehatanBaterai' => $request->battery,
-                'Processor'        => $laptop->benchmark_score,
+                'Processor'        => $processorBenchmark,
                 'KondisiKeyboard'  => $request->keyboard,
                 'RAM'              => $request->ram,
             ];
@@ -122,16 +127,26 @@ class AssessmentController extends Controller
                 $lower = mb_strtolower($request->description);
                 $componentKeywords = AiRelevanceKeyword::pluck('keyword');
 
-                if ($componentKeywords->isNotEmpty() && !$componentKeywords->contains(fn ($keyword) => str_contains($lower, mb_strtolower($keyword)))) {
-                    $descriptionIgnored = true;
-                    $descriptionForAi = null;
+                if ($componentKeywords->isNotEmpty()) {
+                    $found = false;
+                    foreach ($componentKeywords as $kw) {
+                        if (str_contains($lower, mb_strtolower(trim($kw)))) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $descriptionIgnored = true;
+                        $descriptionForAi = null;
+                    }
                 }
             }
 
             // 5. Dapatkan Kesimpulan Naratif dari AI Service
-            $useAi = $request->boolean('use_ai', false);
+            $aiConclusion = null;
             $aiUsed = false;
             try {
+                $useAi = $request->boolean('use_ai', false);
                 $aiConclusion = $this->aiService->getConclusion(
                     $laptop ? "{$laptop->brand->name} {$laptop->model_name}" : $request->laptop_name,
                     $score,
@@ -141,8 +156,8 @@ class AssessmentController extends Controller
                     $request->keyboard,
                     $request->ram,
                     $request->battery,
-                    $laptop->processor_name,
-                    $laptop->benchmark_score,
+                    $laptop->processor_name ?? '-',
+                    $processorBenchmark,
                     $descriptionIgnored,
                     $useAi
                 );
@@ -162,7 +177,7 @@ class AssessmentController extends Controller
                 'laptop_id'       => $laptop?->id,
                 'lcd_input'       => $request->lcd,
                 'battery_input'   => $request->battery,
-                'processor_input' => $laptop->benchmark_score,
+                'processor_input' => $processorBenchmark,
                 'keyboard_input'  => $request->keyboard,
                 'ram_input'       => $request->ram,
                                 'final_score'     => $score,
